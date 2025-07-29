@@ -1,0 +1,428 @@
+/**
+ * ITCSS Architecture - Main Index
+ * 
+ * 이 파일은 ITCSS 방법론에 따른 CSS 아키텍처의 진입점입니다.
+ * 레이어는 특이성과 범위에 따라 순서대로 로드됩니다.
+ * 
+ * ITCSS 레이어 순서:
+ * 1. Settings (변수, 설정)
+ * 2. Tools (믹스인, 함수)
+ * 3. Generic (리셋, 정규화)
+ * 4. Elements (기본 HTML 요소)
+ * 5. Objects (레이아웃 클래스)
+ * 6. Components (UI 컴포넌트)
+ * 7. Utilities (유틸리티 클래스)
+ */
+
+/* ==========================================================================
+   Layer 1: Settings
+   ========================================================================== */
+
+@import './settings.css';
+
+/* ==========================================================================
+   Layer 2: Tools
+   ========================================================================== */
+
+@import './tools.css';
+
+/* ==========================================================================
+   Layer 3: Generic
+   ========================================================================== */
+
+@import './generic.css';
+
+/* ==========================================================================
+   Layer 4: Elements
+   ========================================================================== */
+
+@import './elements.css';
+
+/* ==========================================================================
+   Layer 5: Objects
+   ========================================================================== */
+
+@import './objects.css';
+
+/* ==========================================================================
+   Layer 6: Components
+   ========================================================================== */
+
+@import './components.css';
+
+/* ==========================================================================
+   Layer 7: Utilities
+   ========================================================================== */
+
+@import './utilities.css';
+
+/* ==========================================================================
+   추가 스타일시트
+   ========================================================================== */
+
+/* 애니메이션 */
+@import '../animations/keyframes.css';
+@import '../animations/transitions.css';
+
+/* 기존 디자인 토큰 (호환성 유지) */
+@import '../tokens.css';
+
+/* ==========================================================================
+   글로벌 스타일 오버라이드
+   ========================================================================== */
+
+/* Vue.js 관련 글로벌 스타일 */
+.v-enter-active,
+.v-leave-active {
+    transition: opacity var(--duration-300) var(--ease-in-out);
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
+
+/* 라우터 전환 애니메이션 */
+.router-view-enter-active,
+.router-view-leave-active {
+    transition: all var(--duration-300) var(--ease-in-out);
+}
+
+.router-view-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.router-view-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+/* ==========================================================================
+   개발 모드 전용 스타일
+   ========================================================================== */
+
+@media (prefers-color-scheme: light) {
+
+    /* 개발 모드에서만 표시되는 디버그 스타일 */
+    .debug-grid {
+        background-image:
+            linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .debug-outline * {
+        outline: 1px solid rgba(255, 0, 0, 0.2);
+    }
+}
+
+/* ==========================================================================
+   인쇄 스타일
+   ========================================================================== */
+
+@media print {
+
+    /* 인쇄 시 숨길 요소들 */
+    .no-print,
+    .sidebar,
+    .navigation,
+    .footer {
+        display: none !important;
+    }
+
+    /* 인쇄 최적화 */
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+
+    /* 페이지 나누기 */
+    .page-break {
+        page-break-before: always;
+    }
+
+    .page-break-avoid {
+        page-break-inside: avoid;
+    }
+}
+
+/* ==========================================================================
+   접근성 개선
+   ========================================================================== */
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+    :root {
+        --color-text-primary: #000000;
+        --color-text-secondary: #000000;
+        --color-background-primary: #ffffff;
+        --color-border-medium: #000000;
+    }
+}
+
+/* 모션 감소 */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================================================
+   성능 최적화
+   ========================================================================== */
+
+/* GPU 가속 활성화 */
+.gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* 레이어 최적화 */
+.layer-optimized {
+    contain: layout style paint;
+}
+
+/* ==========================================================================
+   브라우저 호환성
+   ========================================================================== */
+
+/* IE 11 지원 (필요한 경우) */
+@media all and (-ms-high-contrast: none),
+(-ms-high-contrast: active) {
+
+    /* IE 11 전용 스타일 */
+    .ie-fallback {
+        display: block;
+    }
+}
+
+/* Safari 전용 스타일 */
+@supports (-webkit-appearance: none) {
+    /* Safari 전용 스타일 */
+}
+
+/* Firefox 전용 스타일 */
+@supports (-moz-appearance: none) {
+    /* Firefox 전용 스타일 */
+}
+
+/* ==========================================================================
+   유틸리티 클래스 (글로벌)
+   ========================================================================== */
+
+/* 디스플레이 유틸리티 */
+.block {
+    display: block;
+}
+
+.inline {
+    display: inline;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.flex {
+    display: flex;
+}
+
+.inline-flex {
+    display: inline-flex;
+}
+
+.grid {
+    display: grid;
+}
+
+.inline-grid {
+    display: inline-grid;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 포지셔닝 유틸리티 */
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.sticky {
+    position: sticky;
+}
+
+.static {
+    position: static;
+}
+
+/* 오버플로우 유틸리티 */
+.overflow-auto {
+    overflow: auto;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-visible {
+    overflow: visible;
+}
+
+.overflow-scroll {
+    overflow: scroll;
+}
+
+/* 텍스트 정렬 유틸리티 */
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+/* 포인터 이벤트 유틸리티 */
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.pointer-events-auto {
+    pointer-events: auto;
+}
+
+/* 사용자 선택 유틸리티 */
+.select-none {
+    user-select: none;
+}
+
+.select-text {
+    user-select: text;
+}
+
+.select-all {
+    user-select: all;
+}
+
+.select-auto {
+    user-select: auto;
+}
+
+/* ==========================================================================
+   반응형 유틸리티 (글로벌)
+   ========================================================================== */
+
+/* 모바일 퍼스트 반응형 유틸리티 */
+@media (--viewport-sm) {
+    .sm\:block {
+        display: block;
+    }
+
+    .sm\:hidden {
+        display: none;
+    }
+
+    .sm\:flex {
+        display: flex;
+    }
+
+    .sm\:grid {
+        display: grid;
+    }
+}
+
+@media (--viewport-md) {
+    .md\:block {
+        display: block;
+    }
+
+    .md\:hidden {
+        display: none;
+    }
+
+    .md\:flex {
+        display: flex;
+    }
+
+    .md\:grid {
+        display: grid;
+    }
+}
+
+@media (--viewport-lg) {
+    .lg\:block {
+        display: block;
+    }
+
+    .lg\:hidden {
+        display: none;
+    }
+
+    .lg\:flex {
+        display: flex;
+    }
+
+    .lg\:grid {
+        display: grid;
+    }
+}
+
+@media (--viewport-xl) {
+    .xl\:block {
+        display: block;
+    }
+
+    .xl\:hidden {
+        display: none;
+    }
+
+    .xl\:flex {
+        display: flex;
+    }
+
+    .xl\:grid {
+        display: grid;
+    }
+}
+
+@media (--viewport-2xl) {
+    .\2xl\:block {
+        display: block;
+    }
+
+    .\2xl\:hidden {
+        display: none;
+    }
+
+    .\2xl\:flex {
+        display: flex;
+    }
+
+    .\2xl\:grid {
+        display: grid;
+    }
+}

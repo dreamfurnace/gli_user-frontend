@@ -1,0 +1,342 @@
+/**
+ * ITCSS Architecture - Layer 4: Elements
+ * 
+ * 기본 HTML 요소에 대한 스타일을 정의합니다.
+ * 이 레이어는 HTML 요소의 기본 스타일을 설정하며,
+ * 특정 클래스나 ID에 의존하지 않습니다.
+ */
+
+/* ==========================================================================
+   기본 HTML 요소
+   ========================================================================== */
+
+/* 문서 루트 */
+html {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   제목 요소
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-black);
+}
+
+h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+}
+
+h3 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+}
+
+h4 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+h5 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+}
+
+h6 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+}
+
+/* ==========================================================================
+   텍스트 요소
+   ========================================================================== */
+
+p {
+    margin: 0 0 var(--spacing-4) 0;
+    line-height: var(--line-height-relaxed);
+}
+
+a {
+    color: var(--color-primary-600);
+    text-decoration: none;
+    transition: color var(--duration-200) var(--ease-in-out);
+}
+
+a:hover {
+    color: var(--color-primary-700);
+    text-decoration: underline;
+}
+
+a:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+}
+
+strong,
+b {
+    font-weight: var(--font-weight-bold);
+}
+
+em,
+i {
+    font-style: italic;
+}
+
+small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   목록 요소
+   ========================================================================== */
+
+ul,
+ol {
+    margin: 0 0 var(--spacing-4) 0;
+    padding-left: var(--spacing-6);
+}
+
+li {
+    margin-bottom: var(--spacing-2);
+    line-height: var(--line-height-relaxed);
+}
+
+ul {
+    list-style-type: disc;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+/* ==========================================================================
+   폼 요소
+   ========================================================================== */
+
+input,
+textarea,
+select,
+button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+input,
+textarea,
+select {
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-3) var(--spacing-4);
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    transition: border-color var(--duration-200) var(--ease-in-out),
+        box-shadow var(--duration-200) var(--ease-in-out);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+button:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ==========================================================================
+   테이블 요소
+   ========================================================================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+th,
+td {
+    padding: var(--spacing-3) var(--spacing-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-secondary);
+}
+
+td {
+    color: var(--color-text-primary);
+}
+
+tr:hover {
+    background-color: var(--color-background-hover);
+}
+
+/* ==========================================================================
+   이미지 및 미디어
+   ========================================================================== */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+figure {
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+figcaption {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-top: var(--spacing-2);
+}
+
+/* ==========================================================================
+   코드 요소
+   ========================================================================== */
+
+code {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-background-secondary);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-primary);
+}
+
+pre {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-background-secondary);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    overflow-x: auto;
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* ==========================================================================
+   인용 요소
+   ========================================================================== */
+
+blockquote {
+    margin: 0 0 var(--spacing-4) 0;
+    padding: var(--spacing-4) var(--spacing-6);
+    border-left: 4px solid var(--color-primary-500);
+    background-color: var(--color-background-secondary);
+    font-style: italic;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   구분선
+   ========================================================================== */
+
+hr {
+    border: none;
+    border-top: 1px solid var(--color-border-light);
+    margin: var(--spacing-6) 0;
+}
+
+/* ==========================================================================
+   반응형 이미지
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: var(--font-size-2xl);
+    }
+
+    h2 {
+        font-size: var(--font-size-xl);
+    }
+
+    h3 {
+        font-size: var(--font-size-lg);
+    }
+
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+        /* iOS 줌 방지 */
+    }
+}

@@ -1,0 +1,482 @@
+/**
+ * ITCSS Architecture - Layer 5: Objects
+ * 
+ * 레이아웃 클래스와 구조적 패턴을 정의합니다.
+ * 이 레이어는 재사용 가능한 레이아웃 패턴을 제공하며,
+ * 특정 UI 컴포넌트에 의존하지 않습니다.
+ */
+
+/* ==========================================================================
+   컨테이너 객체
+   ========================================================================== */
+
+.o-container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+.o-container--fluid {
+    max-width: none;
+}
+
+.o-container--narrow {
+    max-width: var(--container-narrow-width);
+}
+
+.o-container--wide {
+    max-width: var(--container-wide-width);
+}
+
+/* ==========================================================================
+   그리드 시스템
+   ========================================================================== */
+
+.o-grid {
+    display: grid;
+    gap: var(--grid-gap);
+}
+
+.o-grid--cols-1 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.o-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.o-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.o-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.o-grid--cols-6 {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.o-grid--cols-12 {
+    grid-template-columns: repeat(12, 1fr);
+}
+
+/* 반응형 그리드 */
+@media (--viewport-sm) {
+    .o-grid--cols-sm-1 {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .o-grid--cols-sm-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .o-grid--cols-sm-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (--viewport-md) {
+    .o-grid--cols-md-1 {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .o-grid--cols-md-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .o-grid--cols-md-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .o-grid--cols-md-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (--viewport-lg) {
+    .o-grid--cols-lg-1 {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .o-grid--cols-lg-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .o-grid--cols-lg-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .o-grid--cols-lg-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .o-grid--cols-lg-6 {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* ==========================================================================
+   플렉스 레이아웃
+   ========================================================================== */
+
+.o-flex {
+    display: flex;
+}
+
+.o-flex--inline {
+    display: inline-flex;
+}
+
+.o-flex--column {
+    flex-direction: column;
+}
+
+.o-flex--row {
+    flex-direction: row;
+}
+
+.o-flex--wrap {
+    flex-wrap: wrap;
+}
+
+.o-flex--nowrap {
+    flex-wrap: nowrap;
+}
+
+.o-flex--center {
+    justify-content: center;
+    align-items: center;
+}
+
+.o-flex--start {
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.o-flex--end {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.o-flex--between {
+    justify-content: space-between;
+}
+
+.o-flex--around {
+    justify-content: space-around;
+}
+
+.o-flex--evenly {
+    justify-content: space-evenly;
+}
+
+.o-flex--stretch {
+    align-items: stretch;
+}
+
+.o-flex--baseline {
+    align-items: baseline;
+}
+
+/* ==========================================================================
+   미디어 객체
+   ========================================================================== */
+
+.o-media {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+}
+
+.o-media__figure {
+    flex-shrink: 0;
+}
+
+.o-media__body {
+    flex: 1;
+    min-width: 0;
+    /* 텍스트 오버플로우 방지 */
+}
+
+.o-media--reverse {
+    flex-direction: row-reverse;
+}
+
+.o-media--center {
+    align-items: center;
+}
+
+.o-media--end {
+    align-items: flex-end;
+}
+
+/* ==========================================================================
+   카드 객체
+   ========================================================================== */
+
+.o-card {
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.o-card__header {
+    padding: var(--spacing-6);
+    border-bottom: 1px solid var(--color-border-light);
+    background: var(--color-background-secondary);
+}
+
+.o-card__body {
+    padding: var(--spacing-6);
+}
+
+.o-card__footer {
+    padding: var(--spacing-6);
+    border-top: 1px solid var(--color-border-light);
+    background: var(--color-background-secondary);
+}
+
+.o-card--elevated {
+    box-shadow: var(--shadow-md);
+}
+
+.o-card--flat {
+    box-shadow: none;
+    border: none;
+}
+
+/* ==========================================================================
+   리스트 객체
+   ========================================================================== */
+
+.o-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.o-list__item {
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.o-list__item:last-child {
+    border-bottom: none;
+}
+
+.o-list--bordered .o-list__item {
+    border: 1px solid var(--color-border-light);
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--border-radius-md);
+}
+
+.o-list--striped .o-list__item:nth-child(even) {
+    background-color: var(--color-background-secondary);
+}
+
+/* ==========================================================================
+   네비게이션 객체
+   ========================================================================== */
+
+.o-nav {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.o-nav__item {
+    margin-right: var(--spacing-4);
+}
+
+.o-nav__link {
+    display: block;
+    padding: var(--spacing-3) var(--spacing-4);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: background-color var(--duration-200) var(--ease-in-out);
+}
+
+.o-nav__link:hover {
+    background-color: var(--color-background-hover);
+}
+
+.o-nav__link--active {
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-700);
+}
+
+.o-nav--vertical {
+    flex-direction: column;
+}
+
+.o-nav--vertical .o-nav__item {
+    margin-right: 0;
+    margin-bottom: var(--spacing-2);
+}
+
+/* ==========================================================================
+   사이드바 객체
+   ========================================================================== */
+
+.o-sidebar {
+    width: var(--sidebar-width);
+    background: var(--color-background-secondary);
+    border-right: 1px solid var(--color-border-light);
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.o-sidebar--narrow {
+    width: var(--sidebar-narrow-width);
+}
+
+.o-sidebar--wide {
+    width: var(--sidebar-wide-width);
+}
+
+.o-sidebar__header {
+    padding: var(--spacing-6);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.o-sidebar__body {
+    padding: var(--spacing-4);
+}
+
+.o-sidebar__footer {
+    padding: var(--spacing-6);
+    border-top: 1px solid var(--color-border-light);
+}
+
+/* ==========================================================================
+   메인 콘텐츠 객체
+   ========================================================================== */
+
+.o-main {
+    flex: 1;
+    padding: var(--spacing-6);
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.o-main--with-sidebar {
+    margin-left: var(--sidebar-width);
+}
+
+.o-main--with-sidebar.o-main--sidebar-narrow {
+    margin-left: var(--sidebar-narrow-width);
+}
+
+.o-main--with-sidebar.o-main--sidebar-wide {
+    margin-left: var(--sidebar-wide-width);
+}
+
+/* ==========================================================================
+   레이아웃 헬퍼
+   ========================================================================== */
+
+.o-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.o-layout--vertical {
+    flex-direction: column;
+}
+
+.o-layout__sidebar {
+    flex-shrink: 0;
+}
+
+.o-layout__main {
+    flex: 1;
+    min-width: 0;
+    /* 플렉스 아이템 오버플로우 방지 */
+}
+
+.o-layout__header {
+    flex-shrink: 0;
+}
+
+.o-layout__footer {
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   반응형 유틸리티
+   ========================================================================== */
+
+@media (--viewport-sm) {
+    .o-container {
+        padding: 0 var(--spacing-4);
+    }
+
+    .o-grid--cols-2,
+    .o-grid--cols-3,
+    .o-grid--cols-4,
+    .o-grid--cols-6,
+    .o-grid--cols-12 {
+        grid-template-columns: 1fr;
+    }
+
+    .o-sidebar {
+        position: fixed;
+        left: -100%;
+        transition: left var(--duration-300) var(--ease-in-out);
+        z-index: var(--z-index-right-sidebar);
+    }
+
+    .o-sidebar--open {
+        left: 0;
+    }
+
+    .o-main--with-sidebar {
+        margin-left: 0;
+    }
+}
+
+@media (--viewport-md) {
+
+    .o-grid--cols-3,
+    .o-grid--cols-4,
+    .o-grid--cols-6,
+    .o-grid--cols-12 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (--viewport-lg) {
+
+    .o-grid--cols-4,
+    .o-grid--cols-6,
+    .o-grid--cols-12 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .o-grid--cols-6,
+    .o-grid--cols-12 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (--viewport-xl) {
+    .o-grid--cols-6 {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .o-grid--cols-12 {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (--viewport-2xl) {
+    .o-grid--cols-12 {
+        grid-template-columns: repeat(12, 1fr);
+    }
+}

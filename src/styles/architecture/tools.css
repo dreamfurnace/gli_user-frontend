@@ -1,0 +1,472 @@
+/**
+ * ITCSS Layer 2: Tools
+ * 
+ * 이 레이어는 믹스인, 함수, 유틸리티 함수들을 정의합니다.
+ * 실제 스타일을 생성하지 않고, 다른 레이어에서 사용할 도구들을 제공합니다.
+ */
+
+/* ==========================================================================
+   믹스인 (Mixins)
+   ========================================================================== */
+
+/* 반응형 믹스인 */
+@custom-media --viewport-sm (min-width: 640px);
+@custom-media --viewport-md (min-width: 768px);
+@custom-media --viewport-lg (min-width: 1024px);
+@custom-media --viewport-xl (min-width: 1280px);
+@custom-media --viewport-2xl (min-width: 1536px);
+
+/* 모바일 퍼스트 믹스인 */
+@custom-media --mobile-only (max-width: 639px);
+@custom-media --tablet-up (min-width: 768px);
+@custom-media --desktop-up (min-width: 1024px);
+@custom-media --large-desktop-up (min-width: 1280px);
+
+/* 접근성 믹스인 */
+@custom-media --reduced-motion (prefers-reduced-motion: reduce);
+@custom-media --high-contrast (prefers-contrast: high);
+@custom-media --dark-mode (prefers-color-scheme: dark);
+
+/* ==========================================================================
+   포커스 관리 믹스인
+   ========================================================================== */
+
+/* 포커스 링 스타일 */
+@mixin focus-ring($color: var(--focus-ring-color), $offset: var(--focus-ring-offset)) {
+    outline: var(--focus-ring-width) solid $color;
+    outline-offset: $offset;
+}
+
+/* 포커스 링 (키보드만) */
+@mixin focus-ring-keyboard($color: var(--focus-ring-color), $offset: var(--focus-ring-offset)) {
+    &:focus-visible {
+        outline: var(--focus-ring-width) solid $color;
+        outline-offset: $offset;
+    }
+}
+
+/* 포커스 링 제거 */
+@mixin focus-ring-none {
+    outline: none;
+
+    &:focus-visible {
+        outline: none;
+    }
+}
+
+/* ==========================================================================
+   레이아웃 믹스인
+   ========================================================================== */
+
+/* Flexbox 믹스인 */
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify;
+    align-items: $align;
+    flex-wrap: $wrap;
+}
+
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@mixin flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Grid 믹스인 */
+@mixin grid($columns: 1, $gap: var(--grid-gutter), $rows: auto) {
+    display: grid;
+    grid-template-columns: repeat($columns, 1fr);
+    grid-template-rows: $rows;
+    gap: $gap;
+}
+
+@mixin grid-center {
+    display: grid;
+    place-items: center;
+}
+
+/* ==========================================================================
+   타이포그래피 믹스인
+   ========================================================================== */
+
+/* 텍스트 스타일 믹스인 */
+@mixin text-style($size: base, $weight: normal, $line-height: normal) {
+    font-size: var(--font-size-#{$size});
+    font-weight: var(--font-weight-#{$weight});
+    line-height: var(--line-height-#{$line-height});
+    font-family: var(--font-family-primary);
+}
+
+/* 텍스트 잘림 처리 */
+@mixin text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin text-truncate-multiline($lines: 2) {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   간격 믹스인
+   ========================================================================== */
+
+/* 패딩 믹스인 */
+@mixin padding($size: 4) {
+    padding: var(--spacing-#{$size});
+}
+
+@mixin padding-x($size: 4) {
+    padding-left: var(--spacing-#{$size});
+    padding-right: var(--spacing-#{$size});
+}
+
+@mixin padding-y($size: 4) {
+    padding-top: var(--spacing-#{$size});
+    padding-bottom: var(--spacing-#{$size});
+}
+
+/* 마진 믹스인 */
+@mixin margin($size: 4) {
+    margin: var(--spacing-#{$size});
+}
+
+@mixin margin-x($size: 4) {
+    margin-left: var(--spacing-#{$size});
+    margin-right: var(--spacing-#{$size});
+}
+
+@mixin margin-y($size: 4) {
+    margin-top: var(--spacing-#{$size});
+    margin-bottom: var(--spacing-#{$size});
+}
+
+/* ==========================================================================
+   색상 믹스인
+   ========================================================================== */
+
+/* 배경색 믹스인 */
+@mixin bg-color($color: primary, $shade: 500) {
+    background-color: var(--color-#{$color}-#{$shade});
+}
+
+/* 텍스트 색상 믹스인 */
+@mixin text-color($color: primary, $shade: 500) {
+    color: var(--color-#{$color}-#{$shade});
+}
+
+/* 테두리 색상 믹스인 */
+@mixin border-color($color: primary, $shade: 500) {
+    border-color: var(--color-#{$color}-#{$shade});
+}
+
+/* ==========================================================================
+   그림자 믹스인
+   ========================================================================== */
+
+@mixin shadow($size: md) {
+    box-shadow: var(--shadow-#{$size});
+}
+
+@mixin shadow-none {
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   테두리 믹스인
+   ========================================================================== */
+
+@mixin border($width: 1, $style: solid, $color: var(--color-border-medium)) {
+    border: var(--border-width-#{$width}) $style $color;
+}
+
+@mixin border-radius($size: md) {
+    border-radius: var(--border-radius-#{$size});
+}
+
+@mixin border-radius-full {
+    border-radius: var(--border-radius-full);
+}
+
+/* ==========================================================================
+   애니메이션 믹스인
+   ========================================================================== */
+
+/* 트랜지션 믹스인 */
+@mixin transition($property: all, $duration: 300, $easing: ease-in-out) {
+    transition: $property var(--duration-#{$duration}) var(--ease-#{$easing});
+}
+
+@mixin transition-fast {
+    transition: all var(--duration-200) var(--ease-out);
+}
+
+@mixin transition-normal {
+    transition: all var(--duration-300) var(--ease-in-out);
+}
+
+@mixin transition-slow {
+    transition: all var(--duration-500) var(--ease-in-out);
+}
+
+/* ==========================================================================
+   반응형 믹스인
+   ========================================================================== */
+
+/* 반응형 숨김/표시 */
+@mixin responsive-hide($breakpoint) {
+    @media (--viewport-#{$breakpoint}) {
+        display: none;
+    }
+}
+
+@mixin responsive-show($breakpoint) {
+    display: none;
+
+    @media (--viewport-#{$breakpoint}) {
+        display: block;
+    }
+}
+
+/* 반응형 텍스트 크기 */
+@mixin responsive-text($mobile-size, $tablet-size: $mobile-size, $desktop-size: $tablet-size) {
+    font-size: var(--font-size-#{$mobile-size});
+
+    @media (--viewport-md) {
+        font-size: var(--font-size-#{$tablet-size});
+    }
+
+    @media (--viewport-lg) {
+        font-size: var(--font-size-#{$desktop-size});
+    }
+}
+
+/* ==========================================================================
+   접근성 믹스인
+   ========================================================================== */
+
+/* 스크린 리더 전용 텍스트 */
+@mixin sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 스크린 리더 전용 텍스트 (포커스 가능) */
+@mixin sr-only-focusable {
+    @include sr-only;
+
+    &:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+}
+
+/* ==========================================================================
+   유틸리티 믹스인
+   ========================================================================== */
+
+/* 클리어픽스 */
+@mixin clearfix {
+    &::after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+}
+
+/* 아스펙트 비율 */
+@mixin aspect-ratio($width, $height) {
+    position: relative;
+
+    &::before {
+        content: '';
+        display: block;
+        padding-top: ($height / $width) * 100%;
+    }
+
+    >* {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* 스크롤바 스타일링 */
+@mixin scrollbar-style($width: var(--scrollbar-width), $track-color: var(--scrollbar-track-color), $thumb-color: var(--scrollbar-thumb-color)) {
+    &::-webkit-scrollbar {
+        width: $width;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $track-color;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $thumb-color;
+        border-radius: calc($width / 2);
+
+        &:hover {
+            background: var(--scrollbar-thumb-hover-color);
+        }
+    }
+}
+
+/* ==========================================================================
+   컨테이너 믹스인
+   ========================================================================== */
+
+@mixin container($max-width: var(--container-max-width), $padding: var(--container-padding)) {
+    width: 100%;
+    max-width: $max-width;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: $padding;
+    padding-right: $padding;
+}
+
+/* ==========================================================================
+   그리드 믹스인
+   ========================================================================== */
+
+@mixin grid-column($span: 1, $start: auto) {
+    grid-column: $start / span $span;
+}
+
+@mixin grid-row($span: 1, $start: auto) {
+    grid-row: $start / span $span;
+}
+
+/* ==========================================================================
+   Z-Index 믹스인
+   ========================================================================== */
+
+@mixin z-index($level: 0) {
+    z-index: var(--z-index-#{$level});
+}
+
+/* ==========================================================================
+   미디어 쿼리 믹스인
+   ========================================================================== */
+
+/* 고해상도 디스플레이 */
+@mixin retina {
+
+    @media (-webkit-min-device-pixel-ratio: 2),
+    (min-resolution: 192dpi) {
+        @content;
+    }
+}
+
+/* 인쇄 스타일 */
+@mixin print {
+    @media print {
+        @content;
+    }
+}
+
+/* ==========================================================================
+   함수 (Functions)
+   ========================================================================== */
+
+/* 색상 함수 */
+@function color($name, $shade: 500) {
+    @return var(--color-#{$name}-#{$shade});
+}
+
+/* 간격 함수 */
+@function spacing($size) {
+    @return var(--spacing-#{$size});
+}
+
+/* 폰트 크기 함수 */
+@function font-size($size) {
+    @return var(--font-size-#{$size});
+}
+
+/* 그림자 함수 */
+@function shadow($size) {
+    @return var(--shadow-#{$size});
+}
+
+/* 테두리 반경 함수 */
+@function border-radius($size) {
+    @return var(--border-radius-#{$size});
+}
+
+/* Z-Index 함수 */
+@function z-index($level) {
+    @return var(--z-index-#{$level});
+}
+
+/* ==========================================================================
+   계산 함수
+   ========================================================================== */
+
+/* 퍼센트 계산 */
+@function percentage($value, $total) {
+    @return ($value / $total) * 100%;
+}
+
+/* 뷰포트 단위 계산 */
+@function vw($pixels, $viewport-width: 1920) {
+    @return ($pixels / $viewport-width) * 100vw;
+}
+
+@function vh($pixels, $viewport-height: 1080) {
+    @return ($pixels / $viewport-height) * 100vh;
+}
+
+/* ==========================================================================
+   조건부 믹스인
+   ========================================================================== */
+
+/* 다크 모드 조건부 스타일 */
+@mixin dark-mode {
+    @media (--dark-mode) {
+        @content;
+    }
+}
+
+/* 고대비 모드 조건부 스타일 */
+@mixin high-contrast {
+    @media (--high-contrast) {
+        @content;
+    }
+}
+
+/* 모션 감소 조건부 스타일 */
+@mixin reduced-motion {
+    @media (--reduced-motion) {
+        @content;
+    }
+}

@@ -1,0 +1,285 @@
+/* GLI Platform 디자인 시스템 기반 CSS 커스텀 프로퍼티 */
+
+:root {
+  /* Colors - Primary */
+  --color-primary-50: #e9f1ff;
+  --color-primary-100: #d1e3ff;
+  --color-primary-200: #a3c7ff;
+  --color-primary-300: #75abff;
+  --color-primary-400: #478fff;
+  --color-primary-500: #0d6efd;
+  --color-primary-600: #0b5ed7;
+  --color-primary-700: #094eb1;
+  --color-primary-800: #073e8b;
+  --color-primary-900: #052e65;
+
+  /* Colors - Secondary */
+  --color-secondary-50: #f8f9fa;
+  --color-secondary-100: #e9ecef;
+  --color-secondary-200: #dee2e6;
+  --color-secondary-300: #ced4da;
+  --color-secondary-400: #adb5bd;
+  --color-secondary-500: #6c757d;
+  --color-secondary-600: #495057;
+  --color-secondary-700: #343a40;
+  --color-secondary-800: #212529;
+  --color-secondary-900: #000000;
+
+  /* Colors - Brand */
+  --color-brand-green: #00521e;
+  --color-brand-gold: #ffd700;
+  --color-brand-orange: #ffa500;
+
+  /* Colors - Semantic */
+  --color-semantic-success: #28a745;
+  --color-semantic-warning: #ffc107;
+  --color-semantic-error: #dc3545;
+  --color-semantic-info: #17a2b8;
+
+  /* Colors - Background */
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #fafafa;
+  --color-background-tertiary: #f8f8f8;
+  --color-background-overlay: rgba(0, 0, 0, 0.5);
+  --color-background-sidebar: #f8f8f8;
+  --color-background-light: #f9f9f9;
+  --color-background-hover: #f0f0f0;
+  --color-background-active: #e9f1ff;
+
+  /* Colors - Text */
+  --color-text-primary: #222222;
+  --color-text-secondary: #333333;
+  --color-text-tertiary: #666666;
+  --color-text-muted: #999999;
+  --color-text-inverse: #ffffff;
+
+  /* Colors - Border */
+  --color-border-light: #eee;
+  --color-border-medium: #ddd;
+  --color-border-dark: #ccc;
+
+  /* Colors - Additional */
+  --color-white: #ffffff;
+  --color-primary: #0d6efd;
+  --color-primary-light: #e9f1ff;
+  --color-danger: #dc3545;
+  --color-danger-dark: #c82333;
+  --color-warning: #ffd700;
+  --color-warning-dark: #ffa500;
+  --color-disable: #dee2e6;
+  --color-gray-100: #f8f9fa;
+  --color-gray-200: #e9ecef;
+  --color-gray-300: #dee2e6;
+  --color-gray-400: #ced4da;
+  --color-gray-500: #adb5bd;
+  --color-gray-600: #6c757d;
+  --color-gray-700: #495057;
+
+  /* Typography - Font Sizes */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+
+  /* Typography - Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Typography - Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.5;
+  --line-height-loose: 1.8;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 15px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 30px;
+  --spacing-3xl: 40px;
+  --spacing-4xl: 70px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 5px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-sidebar: -2px 0 5px rgba(0, 0, 0, 0.1);
+  --shadow-chip: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
+  --border-radius-full: 50%;
+
+  /* Z-Index */
+  --z-index-base: 0;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+  --z-index-left-sidebar: 999;
+  --z-index-right-sidebar: 1002;
+  --z-index-sidebar-overlay: 1001;
+  --z-index-header: 1000;
+
+  /* Layout Dimensions */
+  --header-height: 60px;
+  --sidebar-width: 250px;
+  --sidebar-width-mobile: 200px;
+  --button-size-md: 35px;
+  --icon-size-md: 24px;
+  --profile-image-size: 120px;
+  --sidebar-item-height: 44px;
+  --sidebar-submenu-item-height: 32px;
+  --sidebar-submenu-max-height: 500px;
+
+  /* Breakpoints */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+
+  /* Animation Durations */
+  --animation-duration-fast: 0.2s;
+  --animation-duration-normal: 0.3s;
+  --animation-duration-slow: 0.5s;
+
+  /* Animation Easing */
+  --animation-easing-ease: ease;
+  --animation-easing-ease-in: ease-in;
+  --animation-easing-ease-out: ease-out;
+  --animation-easing-ease-in-out: ease-in-out;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Filters */
+  --filter-logo: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(773%)
+    hue-rotate(87deg) brightness(93%) contrast(109%);
+}
+
+/* 기본 리셋 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 기본 body 스타일 */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+/* 기본 링크 스타일 */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 기본 버튼 스타일 */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* 모달 페이드인 애니메이션 */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 유틸리티 클래스들 */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--color-text-tertiary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-inverse {
+  color: var(--color-text-inverse);
+}
+
+.bg-primary {
+  background-color: var(--color-background-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-background-secondary);
+}
+
+.bg-tertiary {
+  background-color: var(--color-background-tertiary);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.rounded-sm {
+  border-radius: var(--border-radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--border-radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--border-radius-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--border-radius-xl);
+}
+
+.rounded-full {
+  border-radius: var(--border-radius-full);
+}

@@ -1,0 +1,318 @@
+/* GLI Platform - Luxury Resort Web3 Theme */
+
+:root {
+  /* 메탈릭 블루 팔레트 */
+  --gli-blue-50: #eff6ff;
+  --gli-blue-100: #dbeafe;
+  --gli-blue-200: #bfdbfe;
+  --gli-blue-300: #93c5fd;
+  --gli-blue-400: #60a5fa;
+  --gli-blue-500: #3b82f6;
+  --gli-blue-600: #2563eb;
+  --gli-blue-700: #1d4ed8;
+  --gli-blue-800: #1e40af;
+  --gli-blue-900: #1e3a8a;
+  --gli-blue-metallic: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+
+  /* 골드 팔레트 */
+  --gli-gold-50: #fffbeb;
+  --gli-gold-100: #fef3c7;
+  --gli-gold-200: #fde68a;
+  --gli-gold-300: #fcd34d;
+  --gli-gold-400: #fbbf24;
+  --gli-gold-500: #f59e0b;
+  --gli-gold-600: #d97706;
+  --gli-gold-700: #b45309;
+  --gli-gold-800: #92400e;
+  --gli-gold-900: #78350f;
+  --gli-gold-metallic: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%);
+
+  /* 다크 그레이 팔레트 */
+  --gli-dark-50: #f8fafc;
+  --gli-dark-100: #f1f5f9;
+  --gli-dark-200: #e2e8f0;
+  --gli-dark-300: #cbd5e1;
+  --gli-dark-400: #94a3b8;
+  --gli-dark-500: #64748b;
+  --gli-dark-600: #475569;
+  --gli-dark-700: #334155;
+  --gli-dark-800: #1e293b;
+  --gli-dark-900: #0f172a;
+
+  /* 메인 그라디언트 조합 */
+  --gli-gradient-primary: linear-gradient(135deg, var(--gli-blue-600) 0%, var(--gli-blue-500) 50%, var(--gli-gold-500) 100%);
+  --gli-gradient-secondary: linear-gradient(135deg, var(--gli-gold-600) 0%, var(--gli-gold-400) 50%, var(--gli-blue-400) 100%);
+  --gli-gradient-luxury: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #d4af37 100%);
+  
+  /* 그림자 효과 */
+  --gli-shadow-luxury: 0 8px 32px rgba(30, 64, 175, 0.15), 0 4px 16px rgba(212, 175, 55, 0.1);
+  --gli-shadow-gold: 0 4px 20px rgba(245, 158, 11, 0.25);
+  --gli-shadow-blue: 0 4px 20px rgba(59, 130, 246, 0.25);
+  
+  /* 블러 효과 */
+  --gli-backdrop-blur-luxury: blur(20px);
+  
+  /* 고급스러운 폰트 */
+  --gli-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gli-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* 고급스러운 기본 스타일 */
+.gli-luxury-container {
+  background: var(--gli-gradient-luxury);
+  backdrop-filter: var(--gli-backdrop-blur-luxury);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: var(--gli-shadow-luxury);
+}
+
+.gli-glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.gli-glass-panel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 메탈릭 버튼 스타일 */
+.gli-btn-primary {
+  background: var(--gli-gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-family: var(--gli-font-display);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--gli-shadow-blue);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gli-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.gli-btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    var(--gli-shadow-blue),
+    0 12px 40px rgba(59, 130, 246, 0.3);
+}
+
+.gli-btn-primary:hover::before {
+  left: 100%;
+}
+
+.gli-btn-gold {
+  background: var(--gli-gradient-secondary);
+  color: var(--gli-dark-900);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-family: var(--gli-font-display);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--gli-shadow-gold);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gli-btn-gold:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    var(--gli-shadow-gold),
+    0 12px 40px rgba(245, 158, 11, 0.4);
+}
+
+/* 웹3 특화 스타일 */
+.gli-web3-status {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.gli-web3-status.connected {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.gli-web3-status.connecting {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.gli-web3-status.disconnected {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+/* 지갑 주소 표시 */
+.gli-wallet-address {
+  font-family: var(--gli-font-mono);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--gli-blue-300);
+  letter-spacing: 0.5px;
+}
+
+/* 럭셔리 카드 스타일 */
+.gli-luxury-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gli-luxury-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gli-gradient-primary);
+  opacity: 0.6;
+}
+
+.gli-luxury-card:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 이모지 강화 스타일 */
+.gli-emoji-enhanced {
+  font-size: 1.2em;
+  margin-right: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: gli-emoji-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes gli-emoji-glow {
+  from {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+  to {
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+  }
+}
+
+/* 고급스러운 애니메이션 */
+.gli-fade-in {
+  animation: gli-fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gli-slide-up {
+  animation: gli-slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gli-scale-in {
+  animation: gli-scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gli-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gli-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gli-scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .gli-luxury-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .gli-btn-primary,
+  .gli-btn-gold {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .gli-web3-status {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* 다크 모드 최적화 */
+@media (prefers-color-scheme: dark) {
+  .gli-glass-panel {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .gli-luxury-card {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .gli-luxury-card:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}

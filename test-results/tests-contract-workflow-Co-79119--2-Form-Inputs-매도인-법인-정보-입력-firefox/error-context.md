@@ -1,0 +1,112 @@
+# Page snapshot
+
+```yaml
+- heading "계약서 정보" [level=3]
+- text: "계약서 유형: 부동산 매매계약서 계약서 제목:"
+- textbox "계약서 제목을 입력하세요"
+- heading "대상 물건 정보" [level=3]
+- text: "주소:"
+- textbox "물건 주소를 입력하세요"
+- text: "지번:"
+- textbox "지번을 입력하세요"
+- heading "작성자 정보" [level=3]
+- text: "공동 작성자:"
+- button "+ 추가"
+- textbox "작성자 1 이름"
+- button "삭제"
+- text: "작성 시작일자: 2025년 7월 20일 상태:"
+- checkbox "미완료"
+- text: "미완료 검증 상태: 검증 완료 0.0%"
+- button "계약서 미리보기" [disabled]
+- button "계약서 출력" [disabled]
+- heading "부동산 매매계약서" [level=1]
+- heading "1. 매매 대상 부동산 정보" [level=2]
+- text: 주소
+- textbox "부동산 주소를 입력하세요"
+- button "주소 찾기"
+- text: 등기부등본 업로드
+- button "Choose File"
+- img
+- paragraph: 파일을 선택하거나 여기에 드래그하세요
+- paragraph: 최대 10MB
+- heading "2. 매도인 정보" [level=2]
+- radio "개인"
+- text: 개인
+- radio "법인" [checked]
+- text: 법인 법인등기부등본
+- button "Choose File"
+- img
+- paragraph: 파일을 선택하거나 여기에 드래그하세요
+- paragraph: 최대 10MB
+- text: 법인인감증명서
+- button "Choose File"
+- img
+- paragraph: 파일을 선택하거나 여기에 드래그하세요
+- paragraph: 최대 10MB
+- text: 회사명
+- textbox
+- text: 대표자
+- textbox
+- text: 본점 주소
+- textbox
+- text: 사업자등록번호
+- textbox
+- text: 전화번호
+- textbox
+- heading "3. 매수인 정보" [level=2]
+- radio "개인" [checked]
+- text: 개인
+- radio "법인"
+- text: "법인 유형:"
+- radio "개인"
+- text: 개인
+- radio "법인"
+- text: 법인
+- heading "4. 매매대금 및 지급 일정" [level=2]
+- text: 총 매매대금
+- textbox "금액을 입력하세요": "0"
+- text: 원 계약금
+- textbox "금액을 입력하세요": "0"
+- text: 원 지급일
+- textbox "날짜를 선택하세요"
+- button:
+  - img
+- button "+ 중도금 추가"
+- text: 잔금
+- textbox "금액을 입력하세요": "0"
+- text: 원 지급일
+- textbox "날짜를 선택하세요"
+- button:
+  - img
+- text: 인도일
+- textbox "날짜를 선택하세요"
+- button:
+  - img
+- checkbox "잔금일과 동일"
+- text: 잔금일과 동일
+- heading "5. 등기부 위험요소 확인" [level=2]
+- checkbox "저당권 존재"
+- text: 저당권 존재
+- checkbox "가압류 존재"
+- text: 가압류 존재
+- checkbox "임차인 존재"
+- text: 임차인 존재
+- heading "7. 계좌 정보" [level=2]
+- text: 은행
+- textbox
+- text: 계좌번호
+- textbox
+- text: 예금주
+- textbox
+- heading "8. AI 추천 특약사항" [level=2]
+- checkbox "전체 동의"
+- text: 전체 동의
+- paragraph: 아래 모든 항목에 동의합니다.
+- heading "9. 추가 특약사항" [level=2]
+- 'textbox "직접 입력 (예: 중개보수 등)"'
+- text: 어떤 판례를 찾고 계신가요?
+- textbox "AI와 함께 검색하기..."
+- button "전송" [disabled]
+- img
+- img
+```

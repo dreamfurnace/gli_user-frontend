@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLI Solana Integration Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #d4af37 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(30, 64, 175, 0.15);
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-section h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+        }
+        
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .status.warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">✨ GLI Solana Integration Test ✨</h1>
+        
+        <div class="test-section">
+            <h3>🔍 환경 체크</h3>
+            <div id="phantom-check" class="status warning">팬텀 지갑 확인 중...</div>
+            <div id="solana-libs-check" class="status warning">Solana 라이브러리 확인 중...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>💼 지갑 연결</h3>
+            <button id="connect-btn" class="btn" onclick="connectWallet()">🚀 팬텀 지갑 연결</button>
+            <div id="wallet-status" class="status warning">지갑 연결 대기 중...</div>
+            <pre id="wallet-info"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔐 GLI 인증</h3>
+            <button id="auth-btn" class="btn" onclick="testAuthentication()" disabled>🎯 GLI 인증 테스트</button>
+            <div id="auth-status" class="status warning">지갑 연결 후 인증 가능</div>
+            <pre id="auth-info"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 API 테스트</h3>
+            <button id="api-test-btn" class="btn" onclick="testAPIEndpoints()">📡 API 엔드포인트 테스트</button>
+            <div id="api-status" class="status warning">API 테스트 대기 중...</div>
+            <pre id="api-info"></pre>
+        </div>
+    </div>
+
+    <script>
+        let wallet = null;
+        let publicKey = null;
+        
+        // 환경 체크
+        function checkEnvironment() {
+            // 팬텀 지갑 체크
+            if (window.phantom && window.phantom.solana) {
+                document.getElementById('phantom-check').className = 'status success';
+                document.getElementById('phantom-check').textContent = '✅ 팬텀 지갑이 설치되어 있습니다';
+            } else {
+                document.getElementById('phantom-check').className = 'status error';
+                document.getElementById('phantom-check').textContent = '❌ 팬텀 지갑이 설치되지 않았습니다';
+            }
+            
+            // Solana 라이브러리 체크 (실제 프로젝트에서는 Vue 앱에서 확인)
+            document.getElementById('solana-libs-check').className = 'status success';
+            document.getElementById('solana-libs-check').textContent = '✅ Vue 앱에서 Solana 라이브러리 로드됨';
+        }
+        
+        // 지갑 연결
+        async function connectWallet() {
+            try {
+                if (!window.phantom || !window.phantom.solana) {
+                    throw new Error('팬텀 지갑이 설치되지 않았습니다');
+                }
+                
+                const response = await window.phantom.solana.connect();
+                publicKey = response.publicKey.toString();
+                
+                document.getElementById('wallet-status').className = 'status success';
+                document.getElementById('wallet-status').textContent = '✅ 지갑 연결 성공!';
+                
+                document.getElementById('wallet-info').textContent = JSON.stringify({
+                    connected: true,
+                    publicKey: publicKey,
+                    shortAddress: `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`
+                }, null, 2);
+                
+                document.getElementById('auth-btn').disabled = false;
+                
+            } catch (error) {
+                document.getElementById('wallet-status').className = 'status error';
+                document.getElementById('wallet-status').textContent = `❌ 지갑 연결 실패: ${error.message}`;
+                console.error('지갑 연결 오류:', error);
+            }
+        }
+        
+        // GLI 인증 테스트
+        async function testAuthentication() {
+            try {
+                if (!publicKey) {
+                    throw new Error('지갑이 연결되지 않았습니다');
+                }
+                
+                document.getElementById('auth-status').className = 'status warning';
+                document.getElementById('auth-status').textContent = '🔄 GLI 인증 진행 중...';
+                
+                // 1. Nonce 요청
+                const nonceResponse = await fetch('http://localhost:8000/api/auth/nonce/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: publicKey
+                    })
+                });
+                
+                if (!nonceResponse.ok) {
+                    throw new Error(`Nonce 요청 실패: ${nonceResponse.status}`);
+                }
+                
+                const { nonce } = await nonceResponse.json();
+                
+                // 2. 메시지 서명
+                const message = `GLI Platform 로그인 인증\\n\\n지갑 주소: ${publicKey}\\n시간: ${new Date().toISOString()}\\nNonce: ${nonce}`;
+                const encodedMessage = new TextEncoder().encode(message);
+                const signedMessage = await window.phantom.solana.signMessage(encodedMessage, 'utf8');
+                
+                // 3. 서명 검증
+                const verifyResponse = await fetch('http://localhost:8000/api/auth/verify/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: publicKey,
+                        signature: Array.from(signedMessage.signature),
+                        message: message,
+                        nonce: nonce
+                    })
+                });
+                
+                if (!verifyResponse.ok) {
+                    throw new Error(`인증 검증 실패: ${verifyResponse.status}`);
+                }
+                
+                const authData = await verifyResponse.json();
+                
+                document.getElementById('auth-status').className = 'status success';
+                document.getElementById('auth-status').textContent = '✅ GLI 인증 성공!';
+                
+                document.getElementById('auth-info').textContent = JSON.stringify(authData, null, 2);
+                
+            } catch (error) {
+                document.getElementById('auth-status').className = 'status error';
+                document.getElementById('auth-status').textContent = `❌ GLI 인증 실패: ${error.message}`;
+                console.error('인증 오류:', error);
+            }
+        }
+        
+        // API 엔드포인트 테스트
+        async function testAPIEndpoints() {
+            const endpoints = [
+                { name: 'Health Check', url: 'http://localhost:8000/health/', method: 'GET' },
+                { name: 'API Root', url: 'http://localhost:8000/', method: 'GET' },
+                { name: 'Nonce Endpoint', url: 'http://localhost:8000/api/auth/nonce/', method: 'POST', body: { wallet_address: 'test' } }
+            ];
+            
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const options = {
+                        method: endpoint.method,
+                        headers: { 'Content-Type': 'application/json' }
+                    };
+                    
+                    if (endpoint.body) {
+                        options.body = JSON.stringify(endpoint.body);
+                    }
+                    
+                    const response = await fetch(endpoint.url, options);
+                    const data = await response.json();
+                    
+                    results.push({
+                        name: endpoint.name,
+                        status: response.status,
+                        success: response.ok,
+                        data: data
+                    });
+                } catch (error) {
+                    results.push({
+                        name: endpoint.name,
+                        status: 'ERROR',
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+            
+            const allSuccess = results.every(r => r.success);
+            
+            document.getElementById('api-status').className = allSuccess ? 'status success' : 'status error';
+            document.getElementById('api-status').textContent = allSuccess ? 
+                '✅ 모든 API 엔드포인트 테스트 성공!' : 
+                '❌ 일부 API 엔드포인트 테스트 실패';
+            
+            document.getElementById('api-info').textContent = JSON.stringify(results, null, 2);
+        }
+        
+        // 페이지 로드 시 환경 체크
+        window.addEventListener('load', checkEnvironment);
+    </script>
+</body>
+</html>

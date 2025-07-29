@@ -1,0 +1,15 @@
+
+> gli-user-frontend@1.0.0 dev
+> vite --port 3000
+
+
+  VITE v7.0.6  ready in 945 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+  ➜  Vue DevTools: Open http://localhost:3000/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+오후 8:20:45 [vite] (client) page reload test-solana-integration.html
+오후 8:25:39 [vite] .env.development changed, restarting server...
+오후 8:25:39 [vite] .env.development changed, restarting server...
+오후 8:25:39 [vite] server restarted.
