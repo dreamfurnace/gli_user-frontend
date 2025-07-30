@@ -12,7 +12,6 @@
   flex: 1;
   width: 100%;
   height: calc(100vh - 60px);
-  margin-top: var(--header-height);
   /* 헤더 높이만큼 여백 */
   padding: 10px;
   overflow: hidden;

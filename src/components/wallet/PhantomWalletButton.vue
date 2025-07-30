@@ -9,11 +9,11 @@
     >
       <div v-if="isConnecting || isAuthenticating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
       <PhantomIcon v-else class="w-5 h-5" />
-      <span class="font-medium">
+      <span class="font-medium wallet-button-text">
         {{ 
-          isConnecting ? '지갑 연결 중...' : 
-          isAuthenticating ? 'GLI 인증 중...' : 
-          '💰 팬텀으로 GLI 로그인' 
+          isConnecting ? '연결 중...' : 
+          isAuthenticating ? '인증 중...' : 
+          '팬텀 월렛' 
         }}
       </span>
     </button>
@@ -156,12 +156,19 @@
       @click="showDropdown = false"
       class="fixed inset-0 z-40"
     ></div>
+    
+    <!-- 로그인 필요 모달 -->
+    <LoginRequiredModal 
+      :show="showLoginRequiredModal" 
+      @close="showLoginRequiredModal = false" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useSolanaWallet } from '@/composables/useSolanaWallet'
 import { useSolanaAuth } from '@/composables/useSolanaAuth'
 import PhantomIcon from '@/components/icons/PhantomIcon.vue'
@@ -169,10 +176,12 @@ import ChevronDownIcon from '@/components/icons/ChevronDownIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 import GiftIcon from '@/components/icons/GiftIcon.vue'
 import LogoutIcon from '@/components/icons/LogoutIcon.vue'
+import LoginRequiredModal from '@/components/LoginRequiredModal.vue'
 
 const router = useRouter()
 const showDropdown = ref(false)
 const isAirdropping = ref(false)
+const showLoginRequiredModal = ref(false)
 
 const {
   isConnected,
@@ -195,9 +204,18 @@ const {
   logout
 } = useSolanaAuth()
 
+const authStore = useAuthStore()
+
 // 지갑 연결 + 인증
 const connectWallet = async () => {
   try {
+    // 로그인 상태 확인
+    if (!authStore.isAuthenticated) {
+      // 로그인이 필요하다는 모달 표시
+      showLoginRequiredModal.value = true
+      return
+    }
+    
     // 1. 지갑 연결
     await connectSolanaWallet()
     
@@ -275,3 +293,25 @@ const requestAirdrop = async () => {
   }
 }
 </script>
+
+<style scoped>
+.wallet-button-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.gli-btn-primary,
+.gli-btn-gold {
+  height: 44px;
+  min-width: 140px;
+  white-space: nowrap;
+}
+
+.gli-btn-primary span,
+.gli-btn-gold span {
+  flex: 1;
+  text-align: center;
+}
+</style>

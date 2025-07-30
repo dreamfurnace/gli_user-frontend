@@ -1,5 +1,5 @@
 <template>
-  <aside class="gli-right-panel" :class="{ 'collapsed': isCollapsed, 'visible': isVisible }">
+  <aside class="gli-right-panel" :class="{ 'collapsed': isCollapsed, 'visible': shouldShowPanel }">
     <!-- 패널 토글 버튼 -->
     <div class="panel-toggle">
       <button class="toggle-btn" @click="togglePanel">
@@ -314,6 +314,11 @@ const isCollapsed = ref(true)
 const isVisible = ref(true)
 const activeTab = ref('help')
 
+// 패널 표시 여부를 제대로 계산
+const shouldShowPanel = computed(() => {
+  return isVisible.value && !isCollapsed.value
+})
+
 // 가이드 상태
 const isGuideMode = ref(false)
 const showGuideOverlay = ref(false)
@@ -386,6 +391,10 @@ const quickQuestions = [
 // 메서드
 const togglePanel = () => {
   isCollapsed.value = !isCollapsed.value
+  // 패널이 펼쳐질 때는 visible을 true로 설정
+  if (!isCollapsed.value) {
+    isVisible.value = true
+  }
 }
 
 const collapsePanel = () => {
@@ -613,10 +622,26 @@ watch(() => route.path, () => {
 })
 
 onMounted(() => {
-  // 화면 크기에 따라 초기 상태 설정
-  if (window.innerWidth < 1200) {
-    isCollapsed.value = true
+  // 저장된 패널 상태 복원
+  const savedState = localStorage.getItem('rightPanelState')
+  if (savedState) {
+    const state = JSON.parse(savedState)
+    isCollapsed.value = state.isCollapsed ?? true
+    isVisible.value = state.isVisible ?? true
+  } else {
+    // 화면 크기에 따라 초기 상태 설정
+    if (window.innerWidth < 1200) {
+      isCollapsed.value = true
+    }
   }
+})
+
+// 패널 상태 변경 시 저장
+watch([isCollapsed, isVisible], () => {
+  localStorage.setItem('rightPanelState', JSON.stringify({
+    isCollapsed: isCollapsed.value,
+    isVisible: isVisible.value
+  }))
 })
 </script>
 
@@ -637,7 +662,7 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.gli-right-panel.visible:not(.collapsed) {
+.gli-right-panel.visible {
   transform: translateX(0);
 }
 

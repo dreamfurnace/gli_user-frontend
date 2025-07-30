@@ -283,7 +283,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import Header from '../components/BaseHeader.vue'
+import Header from '../components/GLIHeader.vue'
 import LeftSidebar from '../components/LeftSidebar.vue'
 import RightSidebar from '../components/RightSidebar.vue'
 import { useProfileEditStore } from '@/stores/profileEditStore'
@@ -311,13 +311,13 @@ const rightSidebarHidden = computed(() => sideMenuStore.rightSidebarHidden)
 const handleToggleLeftSidebar = () => {
   console.log('ProfileEditView: handleToggleLeftSidebar 호출됨')
   console.log('ProfileEditView: 좌측 사이드바 상태:', sideMenuStore.leftSidebarHidden)
-  // 스토어 토글은 BaseHeader에서 이미 처리됨
+  // 스토어 토글은 GLIHeader에서 이미 처리됨
 }
 
 const handleToggleRightSidebar = () => {
   console.log('ProfileEditView: handleToggleRightSidebar 호출됨')
   console.log('ProfileEditView: 우측 사이드바 상태:', sideMenuStore.rightSidebarHidden)
-  // 스토어 토글은 BaseHeader에서 이미 처리됨
+  // 스토어 토글은 GLIHeader에서 이미 처리됨
 }
 
 const handleLogout = async () => {

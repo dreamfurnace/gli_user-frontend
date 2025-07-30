@@ -1,6 +1,6 @@
 <template>
   <div class="contract-doc-choice-container">
-    <BaseHeader
+    <GLIHeader
       @toggleLeftSidebar="handleToggleLeftSidebar"
       @toggleRightSidebar="handleToggleRightSidebar"
     />
@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import BaseHeader from '../components/BaseHeader.vue'
+import GLIHeader from '../components/GLIHeader.vue'
 import LeftSidebar from '../components/LeftSidebar.vue'
 import RightSidebar from '../components/RightSidebar.vue'
 import { useSideMenuStore } from '@/stores/sideMenuStore'
@@ -147,13 +147,13 @@ onMounted(() => {
 const handleToggleLeftSidebar = () => {
   console.log('ContractDocChoiceView: handleToggleLeftSidebar 호출됨')
   console.log('ContractDocChoiceView: 좌측 사이드바 상태:', sideMenuStore.leftSidebarHidden)
-  // 스토어 토글은 BaseHeader에서 이미 처리됨
+  // 스토어 토글은 GLIHeader에서 이미 처리됨
 }
 
 const handleToggleRightSidebar = () => {
   console.log('ContractDocChoiceView: handleToggleRightSidebar 호출됨')
   console.log('ContractDocChoiceView: 우측 사이드바 상태:', sideMenuStore.rightSidebarHidden)
-  // 스토어 토글은 BaseHeader에서 이미 처리됨
+  // 스토어 토글은 GLIHeader에서 이미 처리됨
 }
 
 const handleLogout = async () => {

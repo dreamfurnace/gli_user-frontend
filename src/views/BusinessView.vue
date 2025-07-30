@@ -158,6 +158,48 @@
         </div>
       </div>
     </section>
+
+    <!-- 생태계 토큰 섹션 -->
+    <section id="tokens" class="content-section" ref="tokensSection">
+      <div class="section-container">
+        <h2 class="section-title">
+          <span class="emoji">🪙</span>
+          생태계 토큰
+        </h2>
+        <div class="tokens-grid">
+          <div v-for="token in ecosystemTokens" :key="token.id" class="token-card">
+            <div class="token-header">
+              <div class="token-logo">{{ token.emoji }}</div>
+              <div class="token-info">
+                <h3 class="token-name">{{ token.name }}</h3>
+                <p class="token-symbol">{{ token.symbol }}</p>
+              </div>
+            </div>
+            <div class="token-description">
+              {{ token.description }}
+            </div>
+            <div class="token-features">
+              <h4>주요 기능</h4>
+              <ul class="token-feature-list">
+                <li v-for="feature in token.features" :key="feature">
+                  ✅ {{ feature }}
+                </li>
+              </ul>
+            </div>
+            <div class="token-stats">
+              <div class="stat-item">
+                <span class="stat-label">총 공급량</span>
+                <span class="stat-value">{{ token.totalSupply }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">현재 가격</span>
+                <span class="stat-value">{{ token.currentPrice }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -175,7 +217,8 @@ const sections = [
   { id: 'background', emoji: '🎯' },
   { id: 'team', emoji: '👥' },
   { id: 'strategy', emoji: '📊' },
-  { id: 'roadmap', emoji: '🗓️' }
+  { id: 'roadmap', emoji: '🗓️' },
+  { id: 'tokens', emoji: '🪙' }
 ]
 
 // 팀 멤버 데이터
@@ -259,6 +302,70 @@ const roadmapMilestones = [
     date: '2024 Q4',
     status: 'upcoming',
     emoji: '⏳'
+  }
+]
+
+// 생태계 토큰 데이터
+const ecosystemTokens = [
+  {
+    id: 'glib',
+    name: 'GLI Business',
+    symbol: 'GLIB',
+    emoji: '🔵',
+    description: 'GLI 플랫폼의 핵심 비즈니스 토큰으로, 리조트 예약, NFT 거래, 스테이킹 보상 등에 사용됩니다.',
+    features: [
+      '리조트 예약 및 결제',
+      '스테이킹 보상 참여',
+      'NFT 마켓플레이스 거래',
+      '거버넌스 투표 참여'
+    ],
+    totalSupply: '100,000,000 GLIB',
+    currentPrice: '$0.25'
+  },
+  {
+    id: 'glid',
+    name: 'GLI DeFi',
+    symbol: 'GLID',
+    emoji: '🟣',
+    description: 'DeFi 생태계를 위한 토큰으로, 유동성 제공, 렌딩, 스왑 등 다양한 DeFi 서비스에 활용됩니다.',
+    features: [
+      '유동성 풀 참여',
+      '렌딩 프로토콜 이용',
+      '자동화된 수익 농장',
+      'DEX 스왑 수수료 할인'
+    ],
+    totalSupply: '500,000,000 GLID',
+    currentPrice: '$0.08'
+  },
+  {
+    id: 'glil',
+    name: 'GLI Luxury',
+    symbol: 'GLIL',
+    emoji: '🟢',
+    description: '럭셔리 서비스 전용 토큰으로, 프리미엄 리조트 이용, 고급 NFT 구매, VIP 혜택 등에 사용됩니다.',
+    features: [
+      '프리미엄 리조트 예약',
+      '럭셔리 NFT 컬렉션',
+      'VIP 멤버십 혜택',
+      '프라이빗 이벤트 참여'
+    ],
+    totalSupply: '10,000,000 GLIL',
+    currentPrice: '$2.50'
+  },
+  {
+    id: 'usdt',
+    name: 'Tether USD',
+    symbol: 'USDT',
+    emoji: '🟡',
+    description: '안정적인 가치 저장 수단으로, GLI 생태계 내에서 기준 통화 역할을 합니다.',
+    features: [
+      '안정적인 가치 보장',
+      '법정화폐 페어링',
+      '크로스체인 호환',
+      '즉시 환전 가능'
+    ],
+    totalSupply: '무제한',
+    currentPrice: '$1.00'
   }
 ]
 
@@ -738,6 +845,125 @@ onUnmounted(() => {
 .milestone-description {
   color: var(--text-secondary);
   line-height: 1.6;
+}
+
+/* 생태계 토큰 */
+.tokens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.token-card {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.token-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gli-blue), var(--gli-purple));
+}
+
+.token-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.token-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.token-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--gli-blue), var(--gli-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.token-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.token-symbol {
+  font-size: 0.9rem;
+  color: var(--gli-purple);
+  font-weight: 600;
+  margin: 0.25rem 0 0 0;
+}
+
+.token-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.token-features {
+  margin-bottom: 1.5rem;
+}
+
+.token-features h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.token-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.token-feature-list li {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.token-stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 /* 애니메이션 */

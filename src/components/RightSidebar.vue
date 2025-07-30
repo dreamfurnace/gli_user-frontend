@@ -7,13 +7,13 @@
   
   1. 필수 구현 사항:
      - 모든 페이지에서 우측 사이드바 토글 버튼이 작동하려면 다음이 필요:
-       a) BaseHeader 컴포넌트 사용 (우측 토글 버튼 포함)
+       a) GLIHeader 컴포넌트 사용 (우측 토글 버튼 포함)
        b) useSideMenuStore 스토어 사용
        c) isHidden prop을 올바르게 전달
   
   2. 구현 패턴:
      template:
-       BaseHeader /
+       GLIHeader /
        div.page-content
          페이지 내용
        RightSidebar :is-hidden="sideMenuStore.rightSidebarHidden" @logout="handleLogout" /
@@ -27,7 +27,7 @@
      - 계약 목록 관리 화면: 우측 사이드바 토글 작동 안함
   
   4. 해결 방법:
-     - BaseHeader 컴포넌트가 페이지에 포함되어 있는지 확인
+     - GLIHeader 컴포넌트가 페이지에 포함되어 있는지 확인
      - useSideMenuStore가 import되어 있는지 확인
      - RightSidebar 컴포넌트에 isHidden prop이 올바르게 전달되는지 확인
      - 페이지에서 사이드바 상태를 직접 관리하지 말고 스토어 사용

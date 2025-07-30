@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Header from '../components/BaseHeader.vue'
+import Header from '../components/GLIHeader.vue'
 import LeftSidebar from '../components/LeftSidebar.vue'
 
 const isLeftSidebarHidden = ref(false)

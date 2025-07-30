@@ -1,6 +1,6 @@
 <template>
   <div class="contract-view">
-    <BaseHeader
+    <GLIHeader
       @toggleRightSidebar="handleToggleRightSidebar"
       @toggleLeftSidebar="handleToggleLeftSidebar"
     />
@@ -541,7 +541,7 @@ import PersonInfoComponent from '@/components/PersonInfoComponent.vue'
 import AmountInputComponent from '@/components/AmountInputComponent.vue'
 import DateInputComponent from '@/components/DateInputComponent.vue'
 import FileUploadComponent from '@/components/FileUploadComponent.vue'
-import BaseHeader from '@/components/BaseHeader.vue'
+import GLIHeader from '@/components/GLIHeader.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
 import '@/styles/layouts/contract-layout.css'
@@ -825,11 +825,11 @@ onMounted(() => {
 })
 
 function handleToggleRightSidebar() {
-  // BaseHeader에서 이미 스토어를 토글했으므로 추가 토글 불필요
+  // GLIHeader에서 이미 스토어를 토글했으므로 추가 토글 불필요
   console.log('QBView: 우측 사이드바 토글 이벤트 수신')
 }
 function handleToggleLeftSidebar() {
-  // BaseHeader에서 이미 스토어를 토글했으므로 추가 토글 불필요
+  // GLIHeader에서 이미 스토어를 토글했으므로 추가 토글 불필요
   console.log('QBView: 좌측 사이드바 토글 이벤트 수신')
 }
 </script>

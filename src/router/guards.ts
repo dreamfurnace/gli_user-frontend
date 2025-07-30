@@ -1,5 +1,9 @@
 import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ref } from 'vue'
+
+// Global state for redirect modal
+export const showRedirectModal = ref(false)
 
 /**
  * 라우트 변경 감지 및 사이드 메뉴 자동 숨김 가드
@@ -91,6 +95,16 @@ export function setupAuthGuards(router: Router) {
     if (to.meta.requiresAuth !== false && !publicRoutes.includes(to.name as string)) {
       // 인증 상태 확인
       if (!authStore.isAuthenticated) {
+        // 사이드바 메뉴에서 온 경우 모달 표시
+        const isSidebarNavigation = from.name && publicRoutes.includes(from.name as string)
+        if (isSidebarNavigation) {
+          showRedirectModal.value = true
+          // 3초 후 모달 자동 닫기
+          setTimeout(() => {
+            showRedirectModal.value = false
+          }, 3000)
+        }
+        
         // 로그인 페이지로 리다이렉트하고 원래 목적지 저장
         next({
           name: 'login',
