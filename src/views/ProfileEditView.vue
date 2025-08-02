@@ -4,7 +4,7 @@
       @toggleLeftSidebar="handleToggleLeftSidebar"
       @toggleRightSidebar="handleToggleRightSidebar"
     />
-    <LeftSidebar :isHidden="leftSidebarHidden" />
+    <!-- GLI 플랫폼에서는 프로필 편집 시 사이드바 불필요 -->
     <RightSidebar
       :isHidden="rightSidebarHidden"
       @toggleSidebar="handleToggleRightSidebar"
@@ -284,13 +284,22 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import Header from '../components/GLIHeader.vue'
-import LeftSidebar from '../components/LeftSidebar.vue'
+// LeftSidebar 제거 - GLI 플랫폼에서는 프로필 편집 시 사이드바 불필요
 import RightSidebar from '../components/RightSidebar.vue'
 import { useProfileEditStore } from '@/stores/profileEditStore'
 import { useSideMenuStore } from '@/stores/sideMenuStore'
 import { profileAPI } from '@/services/api'
 import type { ProfileData } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
+import { 
+  sanitizeInput, 
+  validateInput, 
+  apiRateLimiter, 
+  csrfProtection, 
+  securityLogger,
+  dataMasking,
+  secureStorage
+} from '@/utils/security'
 
 // 사이드 메뉴 스토어
 const sideMenuStore = useSideMenuStore()
@@ -359,6 +368,14 @@ const isFormValidExtended = computed(() => {
   return isFormValid.value && Object.keys(formErrors.value).length === 0 && isFormDirty.value
 })
 
+// Security-related reactive data
+const validationErrors = ref<string[]>([])
+const isRateLimited = ref(false)
+const rateLimitMessage = ref('')
+const csrfToken = ref('')
+const passwordValidationErrors = ref<string[]>([])
+const isPasswordRateLimited = ref(false)
+
 const imageInput = ref<HTMLInputElement>()
 
 // 아바타 업로드 관련 상태
@@ -421,28 +438,121 @@ onMounted(async () => {
   await fetchProfile()
   // 원본 데이터 저장
   originalProfileData.value = { ...profileData.value }
+  
+  // Initialize CSRF protection
+  const token = csrfProtection.generateToken()
+  csrfProtection.storeToken(token)
+  csrfToken.value = token
+  
+  // Log page access
+  securityLogger.log('PROFILE_EDIT_PAGE_ACCESS', {
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    userId: profileData.value.id
+  })
 })
 
-// 폼 유효성 검사 함수
+// Security-enhanced form validation
 function validateForm() {
   formErrors.value = {}
+  validationErrors.value = []
 
-  // 이름 검증
-  if (!(profileData.value.name ?? '').trim()) {
-    formErrors.value.name = '이름을 입력해주세요.'
-  } else if ((profileData.value.name ?? '').trim().length < 2) {
-    formErrors.value.name = '이름은 2자 이상 입력해주세요.'
+  // Sanitize inputs first
+  const sanitizedName = sanitizeInput.text(profileData.value.name ?? '')
+  const sanitizedPhone = sanitizeInput.phone(profileData.value.phone ?? '')
+
+  // Apply sanitized values back
+  if (sanitizedName !== profileData.value.name) {
+    profileData.value.name = sanitizedName
+  }
+  if (sanitizedPhone !== profileData.value.phone) {
+    profileData.value.phone = sanitizedPhone
   }
 
-  // 휴대폰 번호 검증
+  // Enhanced name validation
+  const nameError = validateInput.required(sanitizedName, '이름')
+  if (nameError) {
+    formErrors.value.name = nameError
+    validationErrors.value.push(nameError)
+  } else if (sanitizedName.length < 2) {
+    formErrors.value.name = '이름은 2자 이상 입력해주세요.'
+    validationErrors.value.push('이름은 2자 이상 입력해주세요.')
+  } else if (sanitizedName.length > 50) {
+    formErrors.value.name = '이름은 50자 이하로 입력해주세요.'
+    validationErrors.value.push('이름은 50자 이하로 입력해주세요.')
+  }
+
+  // Enhanced phone validation
   if (profileData.value.phone) {
     const phonePattern = /^01[0-9]-\d{3,4}-\d{4}$/
-    if (!phonePattern.test(profileData.value.phone ?? '')) {
+    if (!phonePattern.test(sanitizedPhone)) {
       formErrors.value.phone = '올바른 휴대폰 번호 형식을 입력해주세요. (예: 010-1234-5678)'
+      validationErrors.value.push('올바른 휴대폰 번호 형식을 입력해주세요.')
     }
   }
 
   return Object.keys(formErrors.value).length === 0
+}
+
+// Rate limiting check for profile updates
+const checkProfileUpdateRateLimit = (): boolean => {
+  const identifier = profileData.value.email ?? 'anonymous'
+  
+  if (apiRateLimiter.isRateLimited(identifier)) {
+    isRateLimited.value = true
+    rateLimitMessage.value = '프로필 업데이트 시도 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.'
+    securityLogger.logSuspiciousActivity('PROFILE_UPDATE_RATE_LIMIT_EXCEEDED', { 
+      identifier: sanitizeInput.email(identifier),
+      timestamp: new Date().toISOString() 
+    })
+    return false
+  }
+  
+  isRateLimited.value = false
+  rateLimitMessage.value = ''
+  return true
+}
+
+// Enhanced password validation
+const validatePasswordForm = (): boolean => {
+  passwordValidationErrors.value = []
+  
+  const currentPasswordError = validateInput.required(passwordData.value.currentPassword, '현재 비밀번호')
+  if (currentPasswordError) {
+    passwordValidationErrors.value.push(currentPasswordError)
+  }
+  
+  const newPasswordError = validateInput.required(passwordData.value.newPassword, '새 비밀번호') || 
+                          validateInput.password(passwordData.value.newPassword)
+  if (newPasswordError) {
+    passwordValidationErrors.value.push(newPasswordError)
+  }
+  
+  const confirmPasswordError = validateInput.required(passwordData.value.confirmPassword, '비밀번호 확인')
+  if (confirmPasswordError) {
+    passwordValidationErrors.value.push(confirmPasswordError)
+  } else if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    passwordValidationErrors.value.push('새 비밀번호가 일치하지 않습니다.')
+  }
+  
+  return passwordValidationErrors.value.length === 0
+}
+
+// Rate limiting check for password changes
+const checkPasswordChangeRateLimit = (): boolean => {
+  const identifier = profileData.value.email ?? 'anonymous'
+  
+  if (apiRateLimiter.isRateLimited(`password_${identifier}`)) {
+    isPasswordRateLimited.value = true
+    securityLogger.logSuspiciousActivity('PASSWORD_CHANGE_RATE_LIMIT_EXCEEDED', { 
+      identifier: sanitizeInput.email(identifier),
+      timestamp: new Date().toISOString() 
+    })
+    return false
+  }
+  
+  isPasswordRateLimited.value = false
+  return true
 }
 
 function triggerImageUpload() {
@@ -517,18 +627,49 @@ async function handleImageUpload(event: Event) {
   }
 }
 
-// 이미지 파일 검증
+// Enhanced image file validation with security checks
 function validateImageFile(file: File): string | null {
-  // 파일 크기 검증 (5MB 제한)
-  const maxSize = 5 * 1024 * 1024 // 5MB
+  // File size validation (2MB limit - reduced for security)
+  const maxSize = 2 * 1024 * 1024 // 2MB
   if (file.size > maxSize) {
-    return '파일 크기는 5MB 이하여야 합니다.'
+    securityLogger.logSuspiciousActivity('LARGE_FILE_UPLOAD_ATTEMPT', {
+      fileName: sanitizeInput.text(file.name),
+      fileSize: file.size,
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString()
+    })
+    return '파일 크기는 2MB 이하여야 합니다.'
   }
 
-  // 파일 타입 검증
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+  // File type validation (strict allowlist)
+  const allowedTypes = ['image/jpeg', 'image/png']
   if (!allowedTypes.includes(file.type)) {
-    return 'JPG, PNG, GIF 형식의 이미지만 업로드 가능합니다.'
+    securityLogger.logSuspiciousActivity('INVALID_FILE_TYPE_UPLOAD_ATTEMPT', {
+      fileName: sanitizeInput.text(file.name),
+      fileType: file.type,
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString()
+    })
+    return 'JPG, PNG 형식의 이미지만 업로드 가능합니다.'
+  }
+
+  // File name validation
+  const sanitizedFileName = sanitizeInput.text(file.name)
+  if (sanitizedFileName !== file.name) {
+    securityLogger.logSuspiciousActivity('SUSPICIOUS_FILE_NAME', {
+      originalName: file.name,
+      sanitizedName: sanitizedFileName,
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString()
+    })
+    return '파일명에 허용되지 않는 문자가 포함되어 있습니다.'
+  }
+
+  // File extension validation
+  const allowedExtensions = ['.jpg', '.jpeg', '.png']
+  const fileExtension = sanitizedFileName.toLowerCase().substring(sanitizedFileName.lastIndexOf('.'))
+  if (!allowedExtensions.includes(fileExtension)) {
+    return '허용되지 않는 파일 확장자입니다.'
   }
 
   return null
@@ -536,8 +677,17 @@ function validateImageFile(file: File): string | null {
 
 async function handleSubmit() {
   try {
-    // 폼 유효성 검사
+    // Security validations
     if (!validateForm()) {
+      securityLogger.logSuspiciousActivity('INVALID_PROFILE_UPDATE_INPUT', { 
+        userId: profileData.value.id,
+        errors: validationErrors.value,
+        timestamp: new Date().toISOString() 
+      })
+      return
+    }
+
+    if (!checkProfileUpdateRateLimit()) {
       return
     }
 
@@ -547,15 +697,32 @@ async function handleSubmit() {
       return
     }
 
-    // 업데이트할 데이터만 추출
+    // Log profile update attempt
+    securityLogger.log('PROFILE_UPDATE_ATTEMPT', { 
+      userId: profileData.value.id,
+      changes: {
+        name: profileData.value.name !== originalProfileData.value?.name,
+        phone: profileData.value.phone !== originalProfileData.value?.phone,
+        subscription: profileData.value.subscription_type !== originalProfileData.value?.subscription_type
+      },
+      timestamp: new Date().toISOString() 
+    })
+
+    // 업데이트할 데이터만 추출 (sanitized)
     const updateData = {
-      name: profileData.value.name,
-      phone: profileData.value.phone,
+      name: sanitizeInput.text(profileData.value.name ?? ''),
+      phone: sanitizeInput.phone(profileData.value.phone ?? ''),
       subscription_type: profileData.value.subscription_type,
       subscription_status: profileData.value.subscription_status,
     }
 
     const response = await profileAPI.updateProfile(updateData)
+
+    // Log successful update
+    securityLogger.log('PROFILE_UPDATE_SUCCESS', { 
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString() 
+    })
 
     // 성공 시 원본 데이터 업데이트
     originalProfileData.value = { ...profileData.value }
@@ -568,6 +735,14 @@ async function handleSubmit() {
     return response.data
   } catch (err: any) {
     console.error('프로필 업데이트 실패:', err)
+    
+    // Log failed update
+    securityLogger.log('PROFILE_UPDATE_FAILED', { 
+      userId: profileData.value.id,
+      error: err.message || 'Unknown error',
+      timestamp: new Date().toISOString() 
+    })
+    
     error.value = err.response?.data?.message || '프로필 업데이트에 실패했습니다.'
     throw err
   }
@@ -575,20 +750,66 @@ async function handleSubmit() {
 
 async function handlePasswordChange() {
   try {
+    // Enhanced security validations
+    if (!validatePasswordForm()) {
+      securityLogger.logSuspiciousActivity('INVALID_PASSWORD_CHANGE_INPUT', { 
+        userId: profileData.value.id,
+        errors: passwordValidationErrors.value,
+        timestamp: new Date().toISOString() 
+      })
+      return
+    }
+
+    if (!checkPasswordChangeRateLimit()) {
+      alert('비밀번호 변경 시도 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    // Log password change attempt
+    securityLogger.log('PASSWORD_CHANGE_ATTEMPT', { 
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString() 
+    })
+
     const response = await profileAPI.changePassword({
       current_password: passwordData.value.currentPassword,
       new_password: passwordData.value.newPassword,
       confirm_password: passwordData.value.confirmPassword,
     })
 
+    // Log successful password change
+    securityLogger.log('PASSWORD_CHANGE_SUCCESS', { 
+      userId: profileData.value.id,
+      timestamp: new Date().toISOString() 
+    })
+
     alert('비밀번호가 성공적으로 변경되었습니다.')
+    
+    // Clear sensitive data immediately
     passwordData.value = {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     }
+    passwordValidationErrors.value = []
+    
   } catch (err: any) {
     console.error('비밀번호 변경 실패:', err)
+    
+    // Log failed password change
+    securityLogger.log('PASSWORD_CHANGE_FAILED', { 
+      userId: profileData.value.id,
+      error: err.message || 'Unknown error',
+      timestamp: new Date().toISOString() 
+    })
+    
+    // Clear sensitive data on failure
+    passwordData.value = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    }
+    
     alert(err.response?.data?.message || '비밀번호 변경에 실패했습니다.')
   }
 }
@@ -666,7 +887,7 @@ function getAccountTypeDisplay(accountType: string) {
 
 function maskPhoneNumber(phone?: string) {
   if (!phone) return '****-****-****'
-  return phone.replace(/(\d{3})-(\d{3,4})-(\d{4})/, '****-****-$3')
+  return dataMasking.phone(phone)
 }
 
 const showPhoneModal = ref(false)

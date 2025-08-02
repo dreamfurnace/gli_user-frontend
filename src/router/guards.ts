@@ -9,34 +9,12 @@ export const showRedirectModal = ref(false);
  * 라우트 변경 감지 및 사이드 메뉴 자동 숨김 가드
  */
 export function setupSideMenuGuards(router: Router) {
-	// case-search 화면 진입 시 자동으로 사이드 메뉴 숨김
+	// GLI 플랫폼 사이드 메뉴 관리
 	router.beforeEach((to, from, next) => {
-		// case-search 화면으로 진입하는 경우
-		if (to.name === "case-search") {
-			// 세션 스토리지에 사이드 메뉴 숨김 상태 저장
-			sessionStorage.setItem("autoHideSideMenus", "true");
-			sessionStorage.setItem("leftSidebarHidden", "true");
-			sessionStorage.setItem("rightSidebarHidden", "true");
-		}
-
-		// case-detail 화면으로 진입하는 경우 - 양쪽 사이드바 모두 숨김
-		if (to.name === "case-detail") {
-			sessionStorage.setItem("leftSidebarHidden", "true");
-			sessionStorage.setItem("rightSidebarHidden", "true");
-		}
-
 		// profile-edit 화면으로 진입하는 경우 - 양쪽 사이드바 모두 숨김
 		if (to.name === "profile-edit") {
 			sessionStorage.setItem("leftSidebarHidden", "true");
 			sessionStorage.setItem("rightSidebarHidden", "true");
-		}
-
-		// case-search 화면에서 다른 화면으로 이동하는 경우
-		if (from.name === "case-search" && to.name !== "case-search") {
-			// 자동 숨김 상태 해제
-			sessionStorage.removeItem("autoHideSideMenus");
-			sessionStorage.removeItem("leftSidebarHidden");
-			sessionStorage.removeItem("rightSidebarHidden");
 		}
 
 		// profile-edit 화면에서 다른 화면으로 이동하는 경우
@@ -51,20 +29,17 @@ export function setupSideMenuGuards(router: Router) {
 
 	// 라우트 변경 후 사이드 메뉴 상태 복원
 	router.afterEach((to) => {
-		// case-search 또는 profile-edit 화면이 아닌 경우 이전 상태 복원
-		if (to.name !== "case-search" && to.name !== "profile-edit") {
-			const autoHide = sessionStorage.getItem("autoHideSideMenus");
-			if (!autoHide) {
-				// 사용자 설정 복원
-				const savedLeftState = localStorage.getItem("leftSidebarState");
-				const savedRightState = localStorage.getItem("rightSidebarState");
+		// profile-edit 화면이 아닌 경우 이전 상태 복원
+		if (to.name !== "profile-edit") {
+			// 사용자 설정 복원
+			const savedLeftState = localStorage.getItem("leftSidebarState");
+			const savedRightState = localStorage.getItem("rightSidebarState");
 
-				if (savedLeftState) {
-					sessionStorage.setItem("leftSidebarHidden", savedLeftState);
-				}
-				if (savedRightState) {
-					sessionStorage.setItem("rightSidebarHidden", savedRightState);
-				}
+			if (savedLeftState) {
+				sessionStorage.setItem("leftSidebarHidden", savedLeftState);
+			}
+			if (savedRightState) {
+				sessionStorage.setItem("rightSidebarHidden", savedRightState);
 			}
 		}
 	});
@@ -216,10 +191,11 @@ export class SideMenuStateManager {
 	}
 
 	/**
-	 * 현재 라우트가 case-search인지 확인
+	 * 현재 라우트가 GLI 플랫폼 특정 페이지인지 확인
 	 */
-	isCaseSearchRoute(): boolean {
-		return window.location.pathname === "/case-search";
+	isGLISpecialRoute(): boolean {
+		const currentPath = window.location.pathname;
+		return ["/profile-edit", "/rwa-assets", "/conversion"].includes(currentPath);
 	}
 }
 

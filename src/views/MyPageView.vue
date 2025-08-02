@@ -102,14 +102,14 @@
                 <div class="security-item">
                   <div class="security-info">
                     <span class="security-label">얼굴 인증</span>
-                    <span class="security-desc">실시간 얼굴 랜드마크 검증을 통한 본인 확인</span>
+                    <span class="security-desc">생체 인증으로 보안을 한층 더 강화하세요</span>
                   </div>
                   <button 
                     class="security-btn" 
                     :class="{ enabled: userInfo.faceVerified }"
-                    @click="toggleFaceVerification"
+                    @click="setActiveTab('face-verification')"
                   >
-                    {{ userInfo.faceVerified ? '✓ 인증 완료' : '얼굴 인증 시작' }}
+                    {{ userInfo.faceVerified ? '✓ 인증 완료' : '얼굴 인증 관리' }}
                   </button>
                 </div>
                 <div class="security-item">
@@ -143,157 +143,52 @@
               </div>
             </div>
 
-            <!-- 얼굴 인증 카드 -->
-            <div class="info-card" v-if="showFaceVerification">
-              <h3 class="card-title">🔐 얼굴 인증</h3>
-              <FaceVerification 
-                :auto-start="false"
-                :required-confidence="0.8"
-                :verification-duration="3000"
-                @verified="onFaceVerified"
-                @error="onFaceVerificationError"
-              />
-            </div>
           </div>
         </div>
+      </section>
+
+      <!-- 얼굴 인증 탭 -->
+      <section v-show="activeTab === 'face-verification'" class="tab-panel">
+        <div class="panel-container">
+          <h2 class="panel-title">
+            <span class="panel-emoji">🔐</span>
+            얼굴 인증
+          </h2>
+          
+          <FaceVerificationSection 
+            :user-id="userInfo.id || 'default-user'"
+          />
+        </div>
+      </section>
+
+      <!-- 통합 대시보드 탭 -->
+      <section v-show="activeTab === 'dashboard'" class="tab-panel">
+        <InvestmentDashboard />
+      </section>
+
+      <!-- 투자 포트폴리오 탭 -->
+      <section v-show="activeTab === 'portfolio'" class="tab-panel">
+        <div class="panel-container">
+          <InvestmentPortfolio />
+        </div>
+      </section>
+
+      <!-- GLI-B 토큰 탭 -->
+      <section v-show="activeTab === 'glib-tokens'" class="tab-panel">
+        <GLIBTokenManagement />
       </section>
 
       <!-- 추천인 코드 탭 -->
       <section v-show="activeTab === 'referral'" class="tab-panel">
-        <div class="panel-container">
-          <h2 class="panel-title">
-            <span class="panel-emoji">🤝</span>
-            {{ $t('mypage.referral.title') }}
-          </h2>
-          
-          <div class="referral-grid">
-            <!-- 내 추천인 코드 -->
-            <div class="referral-card">
-              <h3 class="card-title">{{ $t('mypage.referral.myCode') }}</h3>
-              <div class="code-display">
-                <div class="code-box">
-                  <span class="code-text">{{ userInfo.referralCode }}</span>
-                  <button class="copy-btn" @click="copyToClipboard(userInfo.referralCode)">
-                    <span class="copy-icon">📋</span>
-                    {{ $t('common.copy') }}
-                  </button>
-                </div>
-                <div class="code-url">
-                  <input 
-                    :value="referralUrl" 
-                    readonly 
-                    class="url-input"
-                    @click="selectAll"
-                  >
-                  <button class="copy-btn" @click="copyToClipboard(referralUrl)">
-                    <span class="copy-icon">🔗</span>
-                    {{ $t('mypage.referral.copyLink') }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 추천 통계 -->
-            <div class="referral-card">
-              <h3 class="card-title">{{ $t('mypage.referral.stats') }}</h3>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-value">{{ referralStats.totalInvited }}</span>
-                  <span class="stat-label">{{ $t('mypage.referral.totalInvited') }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ referralStats.activeReferrals }}</span>
-                  <span class="stat-label">{{ $t('mypage.referral.activeReferrals') }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ referralStats.totalRewards.toLocaleString() }} GLIB</span>
-                  <span class="stat-label">{{ $t('mypage.referral.totalRewards') }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ referralStats.monthlyRewards.toLocaleString() }} GLIB</span>
-                  <span class="stat-label">{{ $t('mypage.referral.monthlyRewards') }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 소셜 공유 -->
-            <div class="referral-card">
-              <h3 class="card-title">{{ $t('mypage.referral.share') }}</h3>
-              <div class="share-buttons">
-                <button class="share-btn twitter" @click="shareToTwitter">
-                  <span class="share-icon">🐦</span>
-                  Twitter
-                </button>
-                <button class="share-btn telegram" @click="shareToTelegram">
-                  <span class="share-icon">✈️</span>
-                  Telegram
-                </button>
-                <button class="share-btn whatsapp" @click="shareToWhatsApp">
-                  <span class="share-icon">💬</span>
-                  WhatsApp
-                </button>
-                <button class="share-btn kakao" @click="shareToKakao">
-                  <span class="share-icon">💬</span>
-                  KakaoTalk
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ReferralPanel 
+          :user-id="userInfo.id || 'default-user'"
+          @viewAllReferrals="handleViewAllReferrals"
+        />
       </section>
 
-      <!-- 토큰 주소 탭 -->
+      <!-- 통합 거래 내역 탭 -->
       <section v-show="activeTab === 'tokens'" class="tab-panel">
-        <div class="panel-container">
-          <h2 class="panel-title">
-            <span class="panel-emoji">💰</span>
-            {{ $t('mypage.tokens.title') }}
-          </h2>
-          
-          <div class="tokens-grid">
-            <div v-for="token in userTokens" :key="token.symbol" class="token-card">
-              <div class="token-header">
-                <div class="token-info">
-                  <span class="token-icon">{{ token.icon }}</span>
-                  <div class="token-details">
-                    <h3 class="token-name">{{ token.name }}</h3>
-                    <span class="token-symbol">{{ token.symbol }}</span>
-                  </div>
-                </div>
-                <div class="token-balance">
-                  <span class="balance-value">{{ token.balance.toLocaleString() }}</span>
-                  <span class="balance-symbol">{{ token.symbol }}</span>
-                </div>
-              </div>
-              
-              <div class="token-address">
-                <label class="address-label">{{ $t('mypage.tokens.address') }}</label>
-                <div class="address-display">
-                  <span class="address-text">{{ formatAddress(token.address) }}</span>
-                  <button class="address-btn" @click="copyToClipboard(token.address)">
-                    <span class="btn-icon">📋</span>
-                  </button>
-                  <button class="address-btn" @click="showQRCode(token)">
-                    <span class="btn-icon">📱</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="token-price" v-if="token.price">
-                <div class="price-info">
-                  <span class="price-value">${{ token.price.toFixed(4) }}</span>
-                  <span class="price-change" :class="{ positive: token.priceChange > 0, negative: token.priceChange < 0 }">
-                    {{ token.priceChange > 0 ? '+' : '' }}{{ token.priceChange.toFixed(2) }}%
-                  </span>
-                </div>
-                <div class="price-chart">
-                  <!-- 미니 차트 플레이스홀더 -->
-                  <div class="chart-placeholder">📈</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TransactionHistory />
       </section>
 
       <!-- 거래 내역 탭 -->
@@ -413,8 +308,9 @@
             <!-- 지갑 연결 상태 -->
             <div class="wallet-status">
               <div class="status-info">
+                <span class="status-indicator" :class="{ connected: web3Store.isConnected }"></span>
                 <span class="status-text">
-                  {{ web3Store.isConnected ? '🟢 ' + $t('mypage.wallet.connected') : '🔴 ' + $t('mypage.wallet.disconnected') }}
+                  {{ web3Store.isConnected ? $t('mypage.wallet.connected') : $t('mypage.wallet.disconnected') }}
                 </span>
               </div>
               <button v-if="!web3Store.isConnected" class="connect-btn" @click="connectWallet">
@@ -526,21 +422,56 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useWeb3Store } from '@/stores/web3'
 import { useAuthStore } from '@/stores/auth'
+import { useGLIBToken } from '@/composables/useGLIBToken'
+import { useGLILToken } from '@/composables/useGLILToken'
+import { useSolanaWallet } from '@/composables/useSolanaWallet'
+import { getInvestmentStats } from '@/services/api'
 import LogoutIcon from '@/components/icons/LogoutIcon.vue'
-import FaceVerification from '@/components/FaceVerification.vue'
+import FaceVerificationSection from '@/components/face/FaceVerificationSection.vue'
+import InvestmentPortfolio from '@/components/InvestmentPortfolio.vue'
+import InvestmentDashboard from '@/components/InvestmentDashboard.vue'
+import GLIBTokenManagement from '@/components/GLIBTokenManagement.vue'
+import TransactionHistory from '@/components/TransactionHistory.vue'
+import ReferralPanel from '@/components/referral/ReferralPanel.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 const web3Store = useWeb3Store()
 const authStore = useAuthStore()
 
+// Composables
+const { 
+  glibBalance, 
+  formattedBalance: formattedGLIBBalance, 
+  isLoading: isGLIBLoading,
+  updateGLIBBalance 
+} = useGLIBToken()
+
+const { 
+  glilBalance, 
+  formattedBalance: formattedGLILBalance, 
+  updateGLILBalance 
+} = useGLILToken()
+
+const { 
+  publicKey: walletAddress, 
+  isConnected: isWalletConnected, 
+  connect: connectWallet 
+} = useSolanaWallet()
+
 // 활성 탭
-const activeTab = ref('profile')
+const activeTab = ref('dashboard')
 
 // 탭 정의
 const tabs = [
+  { id: 'dashboard', icon: '📊', badge: null },
   { id: 'profile', icon: '👤', badge: null },
+  { id: 'face-verification', icon: '🔐', badge: null },
+  { id: 'portfolio', icon: '📈', badge: null },
+  { id: 'glib-tokens', icon: '🪙', badge: null },
   { id: 'referral', icon: '🤝', badge: null },
   { id: 'tokens', icon: '💰', badge: null },
   { id: 'transactions', icon: '📊', badge: null },
@@ -556,6 +487,7 @@ const gradeEmojis = {
 
 // 사용자 정보
 const userInfo = ref({
+  id: 'user-123', // Add proper user ID
   name: 'GLI User',
   email: 'user@gli.io',
   phone: '+82 10-1234-5678',
@@ -568,8 +500,15 @@ const userInfo = ref({
   faceVerified: false
 })
 
-// 얼굴 인증 관련 상태
-const showFaceVerification = ref(false)
+// 포트폴리오 통계
+const portfolioStats = ref({
+  total_invested: 0,
+  total_current_value: 0,
+  total_profit_loss: 0,
+  profit_loss_percentage: 0,
+  active_investments_count: 0
+})
+
 
 // 로그인 세션
 const loginSessions = ref([
@@ -589,13 +528,7 @@ const loginSessions = ref([
   }
 ])
 
-// 추천인 통계
-const referralStats = ref({
-  totalInvited: 15,
-  activeReferrals: 12,
-  totalRewards: 25000,
-  monthlyRewards: 3200
-})
+// Note: referralStats moved to ReferralPanel component
 
 // 사용자 토큰
 const userTokens = ref([
@@ -700,10 +633,7 @@ const qrModal = ref({
   token: null
 })
 
-// 계산된 속성
-const referralUrl = computed(() => 
-  `https://gli.io/signup?ref=${userInfo.value.referralCode}`
-)
+// Note: referralUrl moved to ReferralPanel component
 
 const filteredTransactions = computed(() => {
   let filtered = transactions.value
@@ -749,6 +679,14 @@ const formatAddress = (address: string) => {
 
 const formatHash = (hash: string) => {
   return `${hash.slice(0, 8)}...${hash.slice(-6)}`
+}
+
+const formatNumber = (value: number): string => {
+  if (!value) return '0'
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 8
+  }).format(value)
 }
 
 const copyToClipboard = async (text: string) => {
@@ -846,55 +784,51 @@ const handleLogout = async () => {
   }
 }
 
-// 얼굴 인증 관련 메서드
-const toggleFaceVerification = () => {
-  if (userInfo.value.faceVerified) {
-    // 이미 인증된 경우 재인증 옵션 제공
-    const confirm = window.confirm('이미 인증이 완료되었습니다. 다시 인증하시겠습니까?')
-    if (confirm) {
-      userInfo.value.faceVerified = false
-      showFaceVerification.value = true
-      // 스크롤을 얼굴 인증 카드로 이동
-      setTimeout(() => {
-        const element = document.querySelector('.info-card:last-child')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
-      }, 100)
+
+// Referral 관련 메서드
+const handleViewAllReferrals = () => {
+  // TODO: Implement full referral history view
+  console.log('View all referrals clicked')
+  // 전체 레퍼럴 내역을 보여주는 모달 또는 별도 페이지로 이동
+}
+
+// 포트폴리오 통계 가져오기
+const fetchPortfolioStats = async () => {
+  try {
+    const response = await getInvestmentStats()
+    portfolioStats.value = response.data
+  } catch (error) {
+    console.error('Failed to fetch portfolio stats:', error)
+  }
+}
+
+// GLI-B 잔액 새로고침
+const refreshGLIBBalance = async () => {
+  if (walletAddress.value) {
+    await updateGLIBBalance(walletAddress.value)
+  }
+}
+
+// 모든 데이터 새로고침
+const refreshAllData = async () => {
+  await Promise.all([
+    fetchPortfolioStats(),
+    refreshGLIBBalance(),
+    walletAddress.value ? updateGLILBalance(walletAddress.value) : Promise.resolve()
+  ])
+}
+
+onMounted(async () => {
+  // 초기 데이터 로딩
+  await refreshAllData()
+  
+  // 대시보드 컴포넌트에서 탭 변경 이벤트 리스너 등록
+  document.addEventListener('change-tab', (event: Event) => {
+    const customEvent = event as CustomEvent
+    if (customEvent.detail) {
+      setActiveTab(customEvent.detail)
     }
-  } else {
-    // 인증되지 않은 경우 인증 시작
-    showFaceVerification.value = true
-    // 스크롤을 얼굴 인증 카드로 이동
-    setTimeout(() => {
-      const element = document.querySelector('.info-card:last-child')
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }, 100)
-  }
-}
-
-const onFaceVerified = (verified: boolean) => {
-  if (verified) {
-    userInfo.value.faceVerified = true
-    showFaceVerification.value = false
-    
-    // 성공 알림
-    alert('✅ 얼굴 인증이 성공적으로 완료되었습니다!')
-    
-    // 사용자 정보를 서버에 업데이트 (실제 구현에서)
-    // await updateUserVerificationStatus({ faceVerified: true })
-  }
-}
-
-const onFaceVerificationError = (error: string) => {
-  console.error('Face verification error:', error)
-  alert(`❌ 얼굴 인증 실패: ${error}`)
-}
-
-onMounted(() => {
-  // 컴포넌트 초기화
+  })
 })
 </script>
 
@@ -1728,11 +1662,19 @@ onMounted(() => {
 .status-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.status-icon {
-  font-size: 1.5rem;
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gli-orange);
+  flex-shrink: 0;
+}
+
+.status-indicator.connected {
+  background: var(--gli-green);
 }
 
 .status-text {
@@ -1925,6 +1867,252 @@ onMounted(() => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* 대시보드 스타일 */
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.dashboard-summary .summary-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s;
+}
+
+.dashboard-summary .summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.dashboard-summary .card-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.dashboard-summary .card-content h3 {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-summary .card-content .amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.dashboard-summary .card-content .amount.profit {
+  color: var(--gli-green);
+}
+
+.dashboard-summary .card-content .amount.loss {
+  color: var(--gli-orange);
+}
+
+.quick-actions {
+  margin-top: 32px;
+}
+
+.quick-actions h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: var(--gli-blue);
+}
+
+.action-btn .btn-icon {
+  font-size: 2rem;
+}
+
+.action-btn .btn-text {
+  font-weight: 500;
+}
+
+/* GLI-B 토큰 탭 스타일 */
+.token-balance-section {
+  margin-bottom: 32px;
+}
+
+.balance-card,
+.wallet-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.balance-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.balance-display {
+  margin-bottom: 24px;
+}
+
+.balance-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+}
+
+.balance-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.balance-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gli-green);
+}
+
+.balance-unit {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.balance-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.balance-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--gli-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.balance-action-btn:hover {
+  background: var(--gli-purple);
+  transform: translateY(-1px);
+}
+
+.wallet-info-section .wallet-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.wallet-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wallet-details {
+  margin-bottom: 16px;
+}
+
+.wallet-address {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.wallet-address label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.wallet-address .address {
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.wallet-connect {
+  text-align: center;
+  padding: 24px;
+}
+
+.wallet-connect p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.connect-wallet-btn {
+  padding: 12px 24px;
+  background: var(--gli-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.connect-wallet-btn:hover {
+  background: var(--gli-purple);
+  transform: translateY(-1px);
 }
 
 /* 반응형 */

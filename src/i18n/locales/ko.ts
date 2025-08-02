@@ -342,6 +342,7 @@ export default {
     subtitle: '내 정보, 추천인 코드, 토큰 주소, 거래 내역을 관리하세요',
     tabs: {
       profile: '회원 정보',
+      portfolio: '투자 포트폴리오',
       referral: '추천인 코드',
       tokens: '토큰 주소',
       transactions: '거래 내역',

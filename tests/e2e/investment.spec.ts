@@ -52,7 +52,7 @@ test.describe('RWA Investment Flow', () => {
     });
   });
 
-  test('사용자가 RWA 자산 목록을 조회할 수 있다', async ({ page }) => {
+  test('사용자가 RWA 투자 자산 목록을 조회할 수 있다', async ({ page }) => {
     await page.goto('/rwa-assets');
     
     // 페이지 제목 확인

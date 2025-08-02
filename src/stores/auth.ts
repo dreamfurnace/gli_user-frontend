@@ -146,10 +146,12 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data
       localStorage.setItem('user', JSON.stringify(response.data))
     } catch (err: any) {
-      console.error('프로필 조회 중 오류:', err)
-      // 토큰이 유효하지 않은 경우 로그아웃
-      if (err.response?.status === 401) {
+      // 401 (인증 실패) 또는 404 (프로필 없음) 에러 처리
+      if (err.response?.status === 401 || err.response?.status === 404) {
+        console.warn('토큰이 유효하지 않거나 프로필을 찾을 수 없습니다. 로그아웃 처리됩니다.')
         await logout()
+      } else {
+        console.error('프로필 조회 중 오류:', err)
       }
     }
   }
@@ -194,10 +196,23 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
-  // 초기화 시 프로필 조회
+  // 초기화 시 토큰 유효성 검사 및 프로필 조회
   const initialize = async () => {
-    if (accessToken.value) {
+    if (accessToken.value && user.value) {
+      // 토큰과 사용자 정보가 모두 있는 경우에만 프로필 조회
       await fetchProfile()
+    } else if (accessToken.value && !user.value) {
+      // 토큰은 있지만 사용자 정보가 없는 경우
+      await fetchProfile()
+    } else {
+      // 토큰이 없는 경우 로컬 스토리지 정리
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('tokens')
+      localStorage.removeItem('user')
+      accessToken.value = null
+      refreshToken.value = null
+      user.value = null
     }
   }
 

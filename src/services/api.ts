@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AxiosResponse } from "axios";
+import { csrfProtection, apiRateLimiter, securityLogger } from '../utils/security';
 
 // API 기본 설정
 const API_BASE_URL =
@@ -14,13 +15,40 @@ const apiClient = axios.create({
 	},
 });
 
-// 요청 인터셉터 - 토큰 자동 추가
+// 요청 인터셉터 - 보안 헤더 및 토큰 자동 추가
 apiClient.interceptors.request.use(
 	(config) => {
+		// Rate limiting check
+		const requestId = `${config.method?.toUpperCase()}_${config.url}`
+		if (apiRateLimiter.isRateLimited(requestId)) {
+			securityLogger.logSuspiciousActivity('RATE_LIMIT_EXCEEDED', { requestId })
+			return Promise.reject(new Error('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'))
+		}
+
+		// Add security headers
+		config.headers = {
+			...config.headers,
+			'X-Requested-With': 'XMLHttpRequest',
+			'X-Client-Version': '1.0.0'
+		}
+
+		// Add CSRF token for non-GET requests
+		if (config.method && !['get', 'head', 'options'].includes(config.method.toLowerCase())) {
+			const csrfToken = csrfProtection.getToken()
+			if (csrfToken) {
+				config.headers['X-CSRF-Token'] = csrfToken
+			}
+		}
+
+		// Add auth token
 		const token = localStorage.getItem("access_token");
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
+
+		// Log API access for security monitoring
+		securityLogger.logDataAccess(config.url || 'unknown', config.method || 'unknown')
+
 		return config;
 	},
 	(error) => {
@@ -190,6 +218,51 @@ export const profileAPI = {
 	}): Promise<AxiosResponse> =>
 		apiClient.post("/user/profile/verify-phone/", phoneData),
 
+	// KYC 관련 API
+	getKYCStatus: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/kyc/status/`),
+
+	submitKYCPersonalInfo: (userId: string, personalInfo: any): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/kyc/personal-info/`, personalInfo),
+
+	uploadKYCDocument: (formData: FormData): Promise<AxiosResponse> =>
+		apiClient.post("/kyc/documents/upload/", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		}),
+
+	getKYCDocuments: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/kyc/documents/`),
+
+	sendEmailVerification: (userId: string, email: string): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/kyc/email-verification/send/`, { email }),
+
+	verifyKYCEmail: (userId: string, verificationCode: string): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/kyc/email-verification/verify/`, { verification_code: verificationCode }),
+
+	sendPhoneVerification: (userId: string, phone: string): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/kyc/phone-verification/send/`, { phone }),
+
+	verifyKYCPhone: (userId: string, phone: string, verificationCode: string): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/kyc/phone-verification/verify/`, { phone, verification_code: verificationCode }),
+
+	// Face Verification API
+	submitFaceVerification: (userId: string, verificationData: {
+		verified: boolean;
+		confidence: number;
+		livenessScore: number;
+		timestamp: string;
+		attempts: number;
+	}): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/face-verification/`, verificationData),
+
+	getFaceVerificationStatus: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/face-verification/status/`),
+
+	getFaceVerificationHistory: (userId: string, params?: ApiParams): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/face-verification/history/`, { params }),
+
 	// 구독 변경
 	updateSubscription: (subscriptionData: {
 		subscription_type: string;
@@ -224,31 +297,6 @@ export const userAPI = {
 		apiClient.delete(`/users/${userId}/`),
 };
 
-// 케이스룸 관련 API
-export const caseRoomAPI = {
-	// 케이스룸 목록 조회
-	getCaseRooms: (params?: ApiParams): Promise<AxiosResponse> =>
-		apiClient.get("/case-rooms/", { params }),
-
-	// 케이스룸 상세 조회
-	getCaseRoom: (caseRoomId: string): Promise<AxiosResponse> =>
-		apiClient.get(`/case-rooms/${caseRoomId}/`),
-
-	// 케이스룸 생성
-	createCaseRoom: (caseRoomData: any): Promise<AxiosResponse> =>
-		apiClient.post("/case-rooms/", caseRoomData),
-
-	// 케이스룸 수정
-	updateCaseRoom: (
-		caseRoomId: string,
-		caseRoomData: any
-	): Promise<AxiosResponse> =>
-		apiClient.put(`/case-rooms/${caseRoomId}/`, caseRoomData),
-
-	// 케이스룸 삭제
-	deleteCaseRoom: (caseRoomId: string): Promise<AxiosResponse> =>
-		apiClient.delete(`/case-rooms/${caseRoomId}/`),
-};
 
 // 파트너 관련 API
 export const partnerAPI = {
@@ -358,28 +406,7 @@ export const issuanceAPI = {
 		apiClient.delete(`/issuance-requests/${requestId}/`),
 };
 
-// 법률/판례 관련 API
-export const lawAPI = {
-	// 법률/판례 목록 조회
-	getLaws: (params?: ApiParams): Promise<AxiosResponse> =>
-		apiClient.get("/laws/", { params }),
-
-	// 법률/판례 상세 조회
-	getLaw: (lawId: string): Promise<AxiosResponse> =>
-		apiClient.get(`/laws/${lawId}/`),
-
-	// 법률/판례 생성
-	createLaw: (lawData: any): Promise<AxiosResponse> =>
-		apiClient.post("/laws/", lawData),
-
-	// 법률/판례 수정
-	updateLaw: (lawId: string, lawData: any): Promise<AxiosResponse> =>
-		apiClient.put(`/laws/${lawId}/`, lawData),
-
-	// 법률/판례 삭제
-	deleteLaw: (lawId: string): Promise<AxiosResponse> =>
-		apiClient.delete(`/laws/${lawId}/`),
-};
+// GLI 플랫폼에서는 법률 관련 API 불필요하므로 제거됨
 
 // 채팅 관련 API
 export const chatAPI = {
@@ -435,6 +462,39 @@ export const activityAPI = {
 	// 활동 로그 생성
 	createActivityLog: (logData: any): Promise<AxiosResponse> =>
 		apiClient.post("/contract-activity-logs/", logData),
+};
+
+// Face Verification API
+export const faceVerificationAPI = {
+	// Submit face verification result
+	submitFaceVerification: (userId: string, verificationData: {
+		verified: boolean;
+		confidence: number;
+		livenessScore: number;
+		timestamp: string;
+		attempts: number;
+	}): Promise<AxiosResponse> =>
+		apiClient.post(`/users/${userId}/face-verification/`, verificationData),
+
+	// Get face verification status
+	getFaceVerificationStatus: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/face-verification/status/`),
+
+	// Get face verification history
+	getFaceVerificationHistory: (userId: string, params?: ApiParams): Promise<AxiosResponse> =>
+		apiClient.get(`/users/${userId}/face-verification/history/`, { params }),
+
+	// Delete face verification data
+	deleteFaceVerificationData: (userId: string): Promise<AxiosResponse> =>
+		apiClient.delete(`/users/${userId}/face-verification/data/`),
+
+	// Update face verification settings
+	updateFaceVerificationSettings: (userId: string, settings: {
+		enableFaceAuth?: boolean;
+		minConfidence?: number;
+		livenessCheckEnabled?: boolean;
+	}): Promise<AxiosResponse> =>
+		apiClient.patch(`/users/${userId}/face-verification/settings/`, settings),
 };
 
 // GLI Content Management API
@@ -557,5 +617,182 @@ export const {
 	// Dashboard
 	getDashboardOverview,
 } = gliContentAPI;
+
+// Token/Wallet related API functions
+export const walletAPI = {
+	// Get GLI-B token balance for user's wallet
+	getGLIBBalance: (walletAddress: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/wallet/balance/glib/?wallet_address=${walletAddress}`),
+	
+	// Get GLI-L token balance for user's wallet
+	getGLILBalance: (walletAddress: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/wallet/balance/glil/?wallet_address=${walletAddress}`),
+	
+	// Get user's wallet information and all token balances
+	getWalletInfo: (walletAddress: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/wallet/info/?wallet_address=${walletAddress}`),
+
+	// Validate investment transaction before execution
+	validateInvestment: (data: {
+		asset_id: string;
+		amount_gleb: number;
+		wallet_address: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/investments/validate/', data),
+
+	// Token conversion APIs
+	
+	// Get current conversion rates between tokens
+	getConversionRates: (): Promise<AxiosResponse> =>
+		apiClient.get('/v1/wallet/conversion/rates/'),
+	
+	// Get conversion fees and limits
+	getConversionInfo: (): Promise<AxiosResponse> =>
+		apiClient.get('/v1/wallet/conversion/info/'),
+	
+	// Validate token conversion before execution
+	validateConversion: (data: {
+		from_token: 'GLIB' | 'GLIL';
+		to_token: 'GLIB' | 'GLIL';
+		from_amount: number;
+		wallet_address: string;
+		conversion_type: 'standard' | 'instant' | 'economy';
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/wallet/conversion/validate/', data),
+	
+	// Execute token conversion
+	executeConversion: (data: {
+		from_token: 'GLIB' | 'GLIL';
+		to_token: 'GLIB' | 'GLIL';
+		from_amount: number;
+		wallet_address: string;
+		conversion_type: 'standard' | 'instant' | 'economy';
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/wallet/conversion/execute/', data),
+	
+	// Get conversion transaction history
+	getConversionHistory: (params: {
+		wallet_address: string;
+		from_token?: 'GLIB' | 'GLIL';
+		to_token?: 'GLIB' | 'GLIL';
+		status?: 'pending' | 'completed' | 'failed' | 'cancelled';
+		page?: number;
+		page_size?: number;
+	}): Promise<AxiosResponse> =>
+		apiClient.get('/v1/wallet/conversion/history/', { params }),
+	
+	// Get specific conversion transaction details
+	getConversionTransaction: (transactionId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/wallet/conversion/transactions/${transactionId}/`),
+};
+
+// Referral system API
+export const referralAPI = {
+	// Get user's referral code
+	getReferralCode: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/code/${userId}`),
+	
+	// Create new referral code
+	createReferralCode: (data: {
+		user_id: string;
+		code: string;
+		max_uses?: number;
+		expires_at?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/referrals/code', data),
+	
+	// Use referral code during signup
+	useReferralCode: (data: {
+		referral_code: string;
+		referee_id: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/referrals/use', data),
+	
+	// Get referral statistics
+	getReferralStats: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/stats/${userId}`),
+	
+	// Get referral history
+	getReferralHistory: (userId: string, params?: {
+		page?: number;
+		limit?: number;
+		status?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/history/${userId}`, { params }),
+	
+	// Process referral reward
+	processReferralReward: (referralId: string): Promise<AxiosResponse> =>
+		apiClient.post(`/v1/referrals/reward/${referralId}`),
+	
+	// Get all referrals for admin
+	getAllReferrals: (params?: {
+		page?: number;
+		limit?: number;
+		status?: string;
+		user_id?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.get('/v1/referrals/all', { params }),
+	
+	// Update referral code settings
+	updateReferralCode: (codeId: string, data: {
+		is_active?: boolean;
+		max_uses?: number;
+		expires_at?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.patch(`/v1/referrals/code/${codeId}`, data),
+	
+	// Delete referral code
+	deleteReferralCode: (codeId: string): Promise<AxiosResponse> =>
+		apiClient.delete(`/v1/referrals/code/${codeId}`),
+	
+	// Referral reward system APIs
+	// Get reward configuration
+	getRewardConfig: (): Promise<AxiosResponse> =>
+		apiClient.get('/v1/referrals/rewards/config'),
+	
+	// Get reward statistics for user
+	getRewardStats: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/rewards/stats/${userId}`),
+	
+	// Get pending rewards for user
+	getPendingRewards: (userId: string): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/rewards/pending/${userId}`),
+	
+	// Get reward history for user
+	getRewardHistory: (userId: string, params?: {
+		page?: number;
+		limit?: number;
+		status?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.get(`/v1/referrals/rewards/history/${userId}`, { params }),
+	
+	// Process a specific reward
+	processReward: (rewardId: string): Promise<AxiosResponse> =>
+		apiClient.post(`/v1/referrals/rewards/process/${rewardId}`),
+	
+	// Process all pending rewards for user (batch processing)
+	processBatchRewards: (userId: string): Promise<AxiosResponse> =>
+		apiClient.post(`/v1/referrals/rewards/process-batch/${userId}`),
+	
+	// Manual reward creation (admin only)
+	createManualReward: (data: {
+		referral_id: string;
+		reward_amount_glib: number;
+		reward_type: 'base' | 'bonus' | 'special';
+		reason?: string;
+	}): Promise<AxiosResponse> =>
+		apiClient.post('/v1/referrals/rewards/manual', data),
+	
+	// Update reward configuration (admin only)
+	updateRewardConfig: (config: {
+		base_reward_glib?: number;
+		bonus_reward_glib?: number;
+		bonus_threshold_referrals?: number;
+		max_rewards_per_month?: number;
+		reward_expiry_days?: number;
+		minimum_referee_activity_days?: number;
+	}): Promise<AxiosResponse> =>
+		apiClient.patch('/v1/referrals/rewards/config', config),
+};
 
 export default apiClient;

@@ -1,80 +1,86 @@
 <template>
-	<div class="main-html-root">
-		<GLIHeader
-			@toggleLeftSidebar="handleToggleLeftSidebar"
-			@toggleRightSidebar="handleToggleRightSidebar"
-		/>
-		<LeftSidebar :isHidden="leftSidebarHidden" />
-		<RightSidebar
-			:isHidden="rightSidebarHidden"
-			@toggleSidebar="handleToggleRightSidebar"
-			@logout="handleLogout"
-		/>
+	<div class="home-view">
+		<div class="hero-section">
+			<div class="hero-content">
+				<h1 class="hero-title">
+					🌟 GLI Web3 레저투자 플랫폼에 오신 것을 환영합니다
+				</h1>
+				<p class="hero-description">
+					블록체인 기술을 활용한 혁신적인 레저 투자 생태계를 경험해보세요.
+					RWA 자산 투자부터 GLI 토큰 활용까지, 모든 것이 가능합니다.
+				</p>
+				<div class="hero-buttons">
+					<router-link to="/business" class="btn-primary">
+						사업 소개 보기
+					</router-link>
+					<router-link to="/rwa-assets" class="btn-secondary">
+						투자 자산 둘러보기
+					</router-link>
+				</div>
+			</div>
+		</div>
 
-		<div class="main-content">
-			<div class="content-wrapper">
-				<div class="contract-mode" :class="{ active: isContractModeActive }">
-					<!-- 계약 정보 및 문서, 채팅, 법령 기록 등 (기존대로) -->
-					<div class="contract-info-section">
-						<div class="contract-info-header">
-							<div class="contract-address">{{ selectedContractAddress }}</div>
-							<div class="contract-status">진행중</div>
-						</div>
-						<div class="document-list">
-							<div class="document-item">
-								<span class="document-icon">📄</span>
-								<span class="document-name">부동산 매매 계약서.docx</span>
-								<span class="document-date">2024/04/25</span>
-							</div>
-							<div class="document-item">
-								<span class="document-icon">📄</span>
-								<span class="document-name">등기부등본.pdf</span>
-								<span class="document-date">2024/04/24</span>
-							</div>
-						</div>
-						<div class="chat-section">
-							<div class="chat-message">
-								최근 채팅 내용이 여기에 표시됩니다...
-							</div>
-							<div class="chat-time">오후 3:45</div>
-						</div>
-						<div class="law-history">
-							<div class="law-item">
-								<span class="law-title">부동산등기법 제123조</span>
-								<span class="law-date">2024/04/25</span>
-							</div>
-							<div class="law-item">
-								<span class="law-title">민법 제570조</span>
-								<span class="law-date">2024/04/24</span>
-							</div>
-						</div>
+		<div class="features-section">
+			<div class="container">
+				<h2 class="section-title">주요 서비스</h2>
+				<div class="features-grid">
+					<div class="feature-card">
+						<div class="feature-icon">🏗️</div>
+						<h3>RWA 투자 자산</h3>
+						<p>실물 자산을 기반으로 한 안전하고 수익성 높은 투자 기회를 제공합니다.</p>
+						<router-link to="/rwa-assets" class="feature-link">
+							자세히 보기 →
+						</router-link>
+					</div>
+					
+					<div class="feature-card">
+						<div class="feature-icon">💱</div>
+						<h3>토큰 변환</h3>
+						<p>GLI 생태계 내에서 다양한 토큰 간 원활한 변환 서비스를 제공합니다.</p>
+						<router-link to="/conversion" class="feature-link">
+							변환하기 →
+						</router-link>
+					</div>
+					
+					<div class="feature-card">
+						<div class="feature-icon">🛍️</div>
+						<h3>GLI-L 쇼핑몰</h3>
+						<p>GLI-L 토큰으로 프리미엄 상품과 서비스를 구매할 수 있습니다.</p>
+						<router-link to="/shopping" class="feature-link">
+							쇼핑하기 →
+						</router-link>
+					</div>
+					
+					<div class="feature-card">
+						<div class="feature-icon">🔐</div>
+						<h3>인증 센터</h3>
+						<p>안전하고 신뢰할 수 있는 Web3 인증 시스템을 통해 보안을 강화합니다.</p>
+						<router-link to="/auth" class="feature-link">
+							인증하기 →
+						</router-link>
 					</div>
 				</div>
-				<div class="prompt-container">
-					<div class="prompt-input">
-						<textarea
-							v-model="promptText"
-							class="prompt-textarea"
-							placeholder="Ask Me Anything..."
-						></textarea>
-						<label class="upload-button" for="fileUpload">
-							<span class="check-icon">✓</span>UPLOAD
-						</label>
-						<input type="file" id="fileUpload" @change="handleFileUpload" />
+			</div>
+		</div>
+
+		<div class="stats-section">
+			<div class="container">
+				<div class="stats-grid">
+					<div class="stat-item">
+						<div class="stat-number">1,000+</div>
+						<div class="stat-label">투자자</div>
 					</div>
-				</div>
-				<div class="tutorials" :class="{ active: !isContractModeActive }">
-					<div class="tutorial-card">
-						<strong>튜토리얼(1)</strong><br />판례/법령 검색<br />(텍스트/동영상)
+					<div class="stat-item">
+						<div class="stat-number">₩50억+</div>
+						<div class="stat-label">누적 투자액</div>
 					</div>
-					<div class="tutorial-card">
-						<strong>튜토리얼(2)</strong><br />계약서 검토<br />(텍스트/동영상)
+					<div class="stat-item">
+						<div class="stat-number">15+</div>
+						<div class="stat-label">투자 자산</div>
 					</div>
-					<div class="tutorial-card">
-						<strong>튜토리얼(3)</strong><br />리스크 점검<br />(텍스트/동영상)
-					</div>
-					<div class="tutorial-card">
-						<strong>튜토리얼(4)</strong><br />문서 작성<br />(텍스트/동영상)
+					<div class="stat-item">
+						<div class="stat-number">98%</div>
+						<div class="stat-label">고객 만족도</div>
 					</div>
 				</div>
 			</div>
@@ -83,334 +89,228 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import GLIHeader from "../components/GLIHeader.vue";
-import LeftSidebar from "../components/LeftSidebar.vue";
-import RightSidebar from "../components/RightSidebar.vue";
-import { useSideMenuStore } from "@/stores/sideMenuStore";
-import { useAuthStore } from "@/stores/auth";
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter();
+const auth = useAuthStore()
 
-// 사이드 메뉴 스토어
-const sideMenuStore = useSideMenuStore();
-const auth = useAuthStore();
-
-// 사이드바 상태를 computed로 만들어 반응형으로 변경
-const leftSidebarHidden = computed(() => sideMenuStore.leftSidebarHidden);
-const rightSidebarHidden = computed(() => sideMenuStore.rightSidebarHidden);
-
-// 로컬 상태
-const isContractModeActive = ref(false);
-const showContractInfo = ref(false);
-const contractInfoText = ref("");
-const selectedContractAddress = ref("");
-const promptText = ref("");
-
-// 사이드바 토글 핸들러들
-const handleToggleLeftSidebar = () => {
-	console.log("HomeView: handleToggleLeftSidebar 호출됨");
-	console.log("HomeView: 좌측 사이드바 상태:", sideMenuStore.leftSidebarHidden);
-	// 스토어 토글은 GLIHeader에서 이미 처리됨
-};
-
-const handleToggleRightSidebar = () => {
-	console.log("HomeView: handleToggleRightSidebar 호출됨");
-	console.log(
-		"HomeView: 우측 사이드바 상태:",
-		sideMenuStore.rightSidebarHidden
-	);
-	// 스토어 토글은 GLIHeader에서 이미 처리됨
-};
-
-const exitContract = () => {
-	isContractModeActive.value = false;
-	showContractInfo.value = false;
-	contractInfoText.value = "";
-	selectedContractAddress.value = "";
-};
-
-const handleFileUpload = (event: Event) => {
-	const target = event.target as HTMLInputElement;
-	if (target.files && target.files[0]) {
-		console.log("File uploaded:", target.files[0].name);
-	}
-};
-
-const handleLogout = async () => {
-	await auth.logout();
-	router.push("/login");
-};
-
-const selectContract = (contract: any) => {
-	selectedContractAddress.value = contract.address;
-	contractInfoText.value = `/${contract.address} 계약 진행 중`;
-	showContractInfo.value = true;
-	isContractModeActive.value = true;
-};
-
-// 로그인 상태 확인
-const checkAuthStatus = () => {
-	console.log("=== HomeView checkAuthStatus started ===");
-	const user = localStorage.getItem("user");
-	const tokens = localStorage.getItem("tokens");
-
-	console.log("localStorage user:", user);
-	console.log("localStorage tokens:", tokens);
-
-	if (!user || !tokens) {
-		console.log("User not authenticated, redirecting to login");
-		router.push("/login");
-		return false;
-	}
-
-	try {
-		const userData = JSON.parse(user);
-		console.log("Authenticated user:", userData);
-		console.log("=== HomeView checkAuthStatus completed successfully ===");
-		return true;
-	} catch (error) {
-		console.error("Error parsing user data:", error);
-		localStorage.removeItem("user");
-		localStorage.removeItem("tokens");
-		router.push("/login");
-		return false;
-	}
-};
-
-// 컴포넌트 마운트 시 실행
 onMounted(async () => {
-	if (checkAuthStatus()) {
-		// 사용자 프로필 정보 최신화
-		try {
-			await auth.fetchProfile();
-		} catch (error) {
-			console.error("프로필 정보 가져오기 실패:", error);
+	try {
+		// 사용자가 로그인한 경우 프로필 정보 업데이트
+		if (auth.isAuthenticated) {
+			await auth.fetchProfile()
 		}
+	} catch (error) {
+		console.error('프로필 정보 로드 실패:', error)
 	}
-});
+})
 </script>
 
 <style scoped>
-.main-html-root {
-	min-height: 100vh;
-	background: #fafafa;
-	width: 100vw;
-	overflow-x: hidden;
-}
-.header-bar {
-	width: 100vw;
-	min-width: 100vw;
-	background: #f8f8f8;
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	height: 60px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-}
-.main-content {
-	padding: 60px 0;
-}
-.main-container {
-	display: flex;
-	height: calc(100vh - 60px);
-	background-color: #fafafa;
-	padding-top: 60px;
-	position: relative;
-	overflow-x: hidden;
-}
-.content-wrapper {
-	height: 100vh;
-	flex-direction: column;
-	align-items: center;
+.home-view {
+	min-height: calc(100vh - 80px);
+	background: linear-gradient(135deg, var(--gli-blue) 0%, var(--gli-purple) 100%);
 }
 
-.contract-mode {
-	display: none;
-	width: 100%;
-	max-width: 800px;
-	display: flex;
-	justify-content: center;
-}
-.contract-mode.active {
-	display: block;
-}
-.prompt-container {
-	margin-bottom: 30px;
-	width: 100%;
-	max-width: 800px;
-	display: flex;
-	justify-content: center;
-}
-.prompt-input {
-	width: 100%;
-	position: relative;
-}
-.prompt-textarea {
-	width: 100%;
-	min-height: 120px;
-	padding: 20px;
-	border: 2px solid #e0e0e0;
-	border-radius: 12px;
-	font-size: 16px;
-	resize: vertical;
-	font-family: inherit;
-	transition: border-color 0.2s ease;
-}
-.prompt-textarea:focus {
-	outline: none;
-	border-color: #007bff;
-}
-.upload-button {
-	position: absolute;
-	bottom: 15px;
-	right: 15px;
-	background-color: #007bff;
+.hero-section {
+	padding: 6rem 2rem;
+	text-align: center;
 	color: white;
-	padding: 8px 16px;
-	border-radius: 20px;
-	font-size: 12px;
-	cursor: pointer;
+}
+
+.hero-content {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.hero-title {
+	font-size: 3rem;
+	font-weight: 700;
+	margin-bottom: 1.5rem;
+	background: linear-gradient(45deg, #fff, var(--gli-gold));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.hero-description {
+	font-size: 1.25rem;
+	margin-bottom: 2.5rem;
+	opacity: 0.9;
+	line-height: 1.6;
+}
+
+.hero-buttons {
 	display: flex;
-	align-items: center;
-	gap: 5px;
-	transition: background-color 0.2s ease;
-}
-.upload-button:hover {
-	background-color: #0056b3;
-}
-.check-icon {
-	font-size: 10px;
-}
-#fileUpload {
-	display: none;
-}
-.tutorials {
-	display: none;
-	gap: 20px;
+	gap: 1rem;
 	justify-content: center;
 	flex-wrap: wrap;
-	margin-top: 30px;
 }
-.tutorials.active {
+
+.btn-primary,
+.btn-secondary {
+	padding: 1rem 2rem;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	display: inline-block;
+}
+
+.btn-primary {
+	background: var(--gli-gold);
+	color: var(--gli-gray-dark);
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.btn-secondary {
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+	background: rgba(255, 255, 255, 0.2);
+	transform: translateY(-2px);
+}
+
+.features-section {
+	padding: 5rem 0;
+	background: var(--bg-primary);
+}
+
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.section-title {
+	text-align: center;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 3rem;
+	color: var(--text-primary);
+}
+
+.features-grid {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 20px;
-	width: 100%;
-	max-width: 800px;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 2rem;
 }
-@media (max-width: 1024px) {
-	.tutorials.active {
+
+.feature-card {
+	background: var(--bg-secondary);
+	padding: 2rem;
+	border-radius: 12px;
+	text-align: center;
+	transition: all 0.3s ease;
+	border: 1px solid var(--border-color);
+}
+
+.feature-card:hover {
+	transform: translateY(-5px);
+	box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: var(--text-primary);
+}
+
+.feature-card p {
+	color: var(--text-secondary);
+	line-height: 1.6;
+	margin-bottom: 1.5rem;
+}
+
+.feature-link {
+	color: var(--gli-blue);
+	text-decoration: none;
+	font-weight: 600;
+	transition: color 0.3s ease;
+}
+
+.feature-link:hover {
+	color: var(--gli-purple);
+}
+
+.stats-section {
+	padding: 4rem 0;
+	background: var(--bg-tertiary);
+}
+
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 2rem;
+	text-align: center;
+}
+
+.stat-item {
+	padding: 1.5rem;
+}
+
+.stat-number {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--gli-blue);
+	margin-bottom: 0.5rem;
+}
+
+.stat-label {
+	font-size: 1.1rem;
+	color: var(--text-secondary);
+	font-weight: 500;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+	.hero-title {
+		font-size: 2rem;
+	}
+	
+	.hero-description {
+		font-size: 1.1rem;
+	}
+	
+	.hero-buttons {
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.btn-primary,
+	.btn-secondary {
+		width: 200px;
+	}
+	
+	.features-grid {
+		grid-template-columns: 1fr;
+	}
+	
+	.stats-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
-@media (max-width: 600px) {
-	.tutorials.active {
+
+@media (max-width: 480px) {
+	.hero-section {
+		padding: 4rem 1rem;
+	}
+	
+	.stats-grid {
 		grid-template-columns: 1fr;
 	}
-}
-.tutorial-card {
-	width: 100%;
-	min-width: 0;
-	padding: 18px 15px;
-	border-radius: 12px;
-	text-align: center;
-	font-size: 15px;
-	background-color: #ffffff;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-	transition:
-		transform 0.2s,
-		box-shadow 0.2s;
-	color: #333;
-	border: 1px solid #ddd;
-	font-weight: 500;
-	cursor: pointer;
-}
-.tutorial-card:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-	background-color: #fdfdfd;
-}
-.contract-info-section {
-	background: white;
-	border-radius: 12px;
-	padding: 20px;
-	margin-bottom: 20px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-.contract-info-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 20px;
-}
-.contract-address {
-	font-size: 18px;
-	font-weight: 600;
-	color: #333;
-}
-.contract-status {
-	background-color: #e3f2fd;
-	color: #1976d2;
-	padding: 4px 12px;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: 500;
-}
-.document-list {
-	margin-bottom: 20px;
-}
-.document-item {
-	display: flex;
-	align-items: center;
-	padding: 10px 0;
-	border-bottom: 1px solid #f0f0f0;
-}
-.document-icon {
-	margin-right: 10px;
-	font-size: 16px;
-}
-.document-name {
-	flex: 1;
-	font-size: 14px;
-	color: #333;
-}
-.document-date {
-	font-size: 12px;
-	color: #666;
-}
-.chat-section {
-	background-color: #f8f9fa;
-	padding: 15px;
-	border-radius: 8px;
-	margin-bottom: 20px;
-}
-.chat-message {
-	font-size: 14px;
-	color: #333;
-	margin-bottom: 5px;
-}
-.chat-time {
-	font-size: 12px;
-	color: #666;
-}
-.law-history {
-	margin-top: 20px;
-}
-.law-item {
-	display: flex;
-	align-items: center;
-	padding: 10px;
-	border-bottom: 1px solid #eee;
-}
-.law-title {
-	flex: 1;
-	font-size: 14px;
-}
-.law-date {
-	font-size: 12px;
-	color: #666;
 }
 </style>

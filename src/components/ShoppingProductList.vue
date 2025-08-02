@@ -260,7 +260,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getShoppingProducts, getShoppingCategories } from '../services/api'
+import { useShoppingCartStore } from '../stores/shoppingCart'
+
+const router = useRouter()
+const cartStore = useShoppingCartStore()
 
 interface ShoppingProduct {
   id: string
@@ -471,32 +476,32 @@ const changePage = (page: number) => {
   }
 }
 
-// 상품 상세 정보 보기 (향후 구현)
+// 상품 상세 정보 보기
 const showProductDetails = (product: ShoppingProduct) => {
   console.log('Show product details:', product)
-  // TODO: 상품 상세 모달 또는 페이지로 이동
+  router.push(`/shopping/product/${product.id}`)
 }
 
-// 장바구니 추가 (향후 구현)
+// 장바구니 추가
 const addToCart = (product: ShoppingProduct) => {
   if (!product.is_in_stock) return
   
-  console.log('Add to cart:', product)
-  // TODO: 장바구니 로직 구현
+  const result = cartStore.addItem(product, 1)
   
-  // 임시 알림
-  alert(`${product.name}이(가) 장바구니에 추가되었습니다.`)
+  if (result.success) {
+    // 성공 메시지 표시 (향후 토스트 알림으로 변경 가능)
+    alert(result.message)
+  } else {
+    alert(result.message)
+  }
 }
 
-// 바로 구매 (향후 구현)
+// 바로 구매
 const buyNow = (product: ShoppingProduct) => {
   if (!product.is_in_stock) return
   
-  console.log('Buy now:', product)
-  // TODO: 구매 모달 또는 결제 페이지로 이동
-  
-  // 임시 알림
-  alert(`${product.name} 구매 페이지로 이동합니다.`)
+  // 상품 상세 페이지로 이동하여 바로 구매 진행
+  router.push(`/shopping/product/${product.id}`)
 }
 
 // 컴포넌트 마운트

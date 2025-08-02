@@ -20,7 +20,7 @@
 							:class="{ active: $route.path.startsWith('/business') }"
 							@click="handleBusinessMenuClick"
 						>
-							<span class="nav-icon">📄</span>
+							<span class="nav-icon">🏢</span>
 							<span class="nav-text" v-if="!isCollapsed">사업 소개</span>
 							<span class="nav-tooltip" v-if="isCollapsed">사업 소개</span>
 							<span v-if="!isCollapsed" class="nav-arrow">
@@ -149,7 +149,7 @@
 							class="nav-link"
 							:class="{ active: $route.path.startsWith('/help-center') }"
 						>
-							<span class="nav-icon">📑</span>
+							<span class="nav-icon">❓</span>
 							<span class="nav-text" v-if="!isCollapsed">안내 센터</span>
 							<span class="nav-tooltip" v-if="isCollapsed">안내 센터</span>
 						</router-link>
@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useWeb3Store } from "@/stores/web3";
@@ -194,7 +194,16 @@ const router = useRouter();
 const { t } = useI18n();
 const web3Store = useWeb3Store();
 
-const isCollapsed = ref(false);
+// Inject sidebar collapse controls from parent App.vue
+const sidebarControls = inject('sidebarCollapsed', {
+	isLeftSidebarCollapsed: ref(false),
+	setLeftSidebarCollapsed: (collapsed: boolean) => {}
+});
+
+const isCollapsed = computed({
+	get: () => sidebarControls.isLeftSidebarCollapsed.value,
+	set: (value: boolean) => sidebarControls.setLeftSidebarCollapsed(value)
+});
 const authProgress = ref(65); // 예시 진행률
 const referralCount = ref(3); // 예시 레퍼럴 수
 

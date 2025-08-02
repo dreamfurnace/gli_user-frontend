@@ -11,25 +11,11 @@
 
 			<!-- 중앙 상태 표시 -->
 			<div class="status-section">
-				<!-- 네트워크 상태 -->
-				<div class="network-status" :class="networkStatusClass">
-					<div class="status-indicator"></div>
-					<span class="status-text">{{ networkStatusText }}</span>
-				</div>
-
-				<!-- 계정 정보 (로그인 시) -->
+				<!-- 사용자 등급 정보 (로그인 시) -->
 				<div v-if="isConnected" class="account-info">
 					<div class="account-item">
 						<span class="label">💎 등급:</span>
 						<span class="value grade-premium">Premium GLI Member</span>
-					</div>
-					<div class="account-item">
-						<span class="label">🏦 지갑 주소:</span>
-						<span class="value wallet-address">{{ shortAddress }}</span>
-					</div>
-					<div class="account-item">
-						<span class="label">🌐 네트워크:</span>
-						<span class="value auth-number">Solana Devnet</span>
 					</div>
 				</div>
 			</div>
@@ -121,7 +107,7 @@ import logoImg from "/img/logo/logo.png";
 
 const { locale, t } = useI18n();
 const themeStore = useThemeStore();
-const { isConnected, shortAddress } = useSolanaWallet();
+const { isConnected } = useSolanaWallet();
 
 const currentLocale = ref(locale.value);
 const autoLogin = ref(false);
@@ -131,18 +117,6 @@ const isLanguageDropdownOpen = ref(false);
 const theme = computed(() => themeStore.theme);
 const toggleTheme = () => themeStore.toggleTheme();
 
-// 네트워크 상태 (Solana 기반)
-const networkStatusClass = computed(() => ({
-	"status-connected": isConnected.value,
-	"status-connecting": false,
-	"status-disconnected": !isConnected.value,
-}));
-
-const networkStatusText = computed(() => {
-	return isConnected.value
-		? "🟢 Solana Devnet Connected"
-		: "🔴 Wallet Disconnected";
-});
 
 // 언어 선택기 관련
 const currentFlag = computed(() => {
@@ -271,33 +245,6 @@ onUnmounted(() => {
 	gap: 0.5rem;
 }
 
-.network-status {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem 1rem;
-	border-radius: var(--radius-full, 20px);
-	background: var(--interactive-secondary, rgba(255, 255, 255, 0.1));
-	backdrop-filter: blur(5px);
-	border: 1px solid var(--border-secondary, transparent);
-	color: var(--text-primary);
-}
-
-.status-indicator {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #ff4444;
-}
-
-.status-connected .status-indicator {
-	background: #44ff44;
-}
-
-.status-connecting .status-indicator {
-	background: #ffaa44;
-	animation: pulse 1s infinite;
-}
 
 .account-info {
 	display: flex;
@@ -323,15 +270,6 @@ onUnmounted(() => {
 	color: #ffd700;
 }
 
-.wallet-address {
-	font-family: monospace;
-	color: #64b5f6;
-}
-
-.auth-number {
-	color: #81c784;
-	font-weight: bold;
-}
 
 /* 컨트롤 섹션 */
 .controls-section {
@@ -637,9 +575,7 @@ onUnmounted(() => {
 	color: var(--text-primary);
 }
 
-:global([data-color-mode="dark"]) .network-status,
-:global([data-color-mode="dark"]) .theme-toggle,
-:global([data-color-mode="dark"]) .balance-display {
+:global([data-color-mode="dark"]) .theme-toggle {
 	background: var(--interactive-secondary);
 	border: 1px solid var(--border-primary);
 }

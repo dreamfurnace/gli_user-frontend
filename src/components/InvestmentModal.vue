@@ -44,10 +44,34 @@
           </div>
         </div>
 
+        <!-- GLI-B 토큰 잔액 -->
+        <div class="balance-section">
+          <div class="balance-header">
+            <h4>💰 GLI-B 토큰 잔액</h4>
+            <button v-if="isConnected" class="refresh-btn" @click="refreshBalance" :disabled="isBalanceLoading">
+              <span v-if="isBalanceLoading" class="loading-spinner small"></span>
+              <span v-else>🔄</span>
+            </button>
+          </div>
+          <div class="balance-display">
+            <div v-if="!isConnected" class="balance-warning">
+              ⚠️ 지갑을 연결해주세요
+            </div>
+            <div v-else-if="isBalanceLoading" class="balance-loading">
+              <span class="loading-spinner small"></span>
+              잔액 확인 중...
+            </div>
+            <div v-else class="balance-amount">
+              <span class="balance-value">{{ formattedBalance }}</span>
+              <span class="balance-unit">GLI-B</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 투자 폼 -->
         <div class="investment-form">
           <div class="form-group">
-            <label for="investment-amount">투자 금액 (GLEB)</label>
+            <label for="investment-amount">투자 금액 (GLI-B)</label>
             <div class="input-group">
               <input 
                 id="investment-amount"
@@ -62,10 +86,23 @@
               <span class="input-unit">GLEB</span>
             </div>
             <div class="input-constraints">
-              <span class="min-amount">최소: {{ formatNumber(asset.min_investment_gleb) }} GLEB</span>
-              <span v-if="asset.max_investment_gleb" class="max-amount">
-                최대: {{ formatNumber(asset.max_investment_gleb) }} GLEB
-              </span>
+              <div class="constraint-row">
+                <span class="min-amount">최소: {{ formatNumber(asset.min_investment_gleb) }} GLI-B</span>
+                <span v-if="asset.max_investment_gleb" class="max-amount">
+                  최대: {{ formatNumber(asset.max_investment_gleb) }} GLI-B
+                </span>
+              </div>
+              <div class="balance-constraint">
+                <span class="available-balance">보유: {{ formattedBalance }} GLI-B</span>
+                <button 
+                  v-if="isConnected && glibBalance > 0" 
+                  class="max-btn" 
+                  @click="setMaxAmount"
+                  type="button"
+                >
+                  MAX
+                </button>
+              </div>
             </div>
           </div>
 
@@ -102,6 +139,16 @@
             </label>
           </div>
 
+          <!-- 투자 유효성 검사 오류 -->
+          <div v-if="validationErrors.length > 0" class="validation-errors">
+            <h5>⚠️ 투자 조건 확인</h5>
+            <ul>
+              <li v-for="error in validationErrors" :key="error" class="validation-error">
+                {{ error }}
+              </li>
+            </ul>
+          </div>
+
           <!-- 에러/성공 메시지 -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
@@ -130,8 +177,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { investInRWAAsset } from '../services/api'
+import { ref, computed, watch, onMounted } from 'vue'
+import { investInRWAAsset, walletAPI } from '../services/api'
+import { useGLIBToken } from '../composables/useGLIBToken'
+import { useSolanaWallet } from '../composables/useSolanaWallet'
 
 interface RWAAsset {
   id: string
@@ -157,6 +206,18 @@ const emit = defineEmits<{
   'investment-success': [investment: any]
 }>()
 
+// Composables
+const { 
+  glibBalance, 
+  formattedBalance, 
+  isLoading: isBalanceLoading,
+  updateGLIBBalance,
+  validateInvestmentAmount,
+  hasEnoughGLIB
+} = useGLIBToken()
+
+const { fullAddress, isConnected } = useSolanaWallet()
+
 // 반응형 데이터
 const investmentAmount = ref<number | null>(null)
 const agreedToTerms = ref(false)
@@ -164,6 +225,7 @@ const understoodRisks = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const validationErrors = ref<string[]>([])
 
 // 예상 수익 계산
 const expectedReturns = computed(() => {
@@ -184,11 +246,22 @@ const expectedReturns = computed(() => {
   }
 })
 
+// 실시간 투자 유효성 검사
+const validateInvestment = () => {
+  if (!investmentAmount.value) {
+    validationErrors.value = []
+    return
+  }
+  
+  const validation = validateInvestmentAmount(investmentAmount.value, props.asset)
+  validationErrors.value = validation.errors
+}
+
 // 투자 가능 여부
 const canInvest = computed(() => {
   if (!investmentAmount.value) return false
-  if (investmentAmount.value < props.asset.min_investment_gleb) return false
-  if (props.asset.max_investment_gleb && investmentAmount.value > props.asset.max_investment_gleb) return false
+  if (!isConnected.value) return false
+  if (validationErrors.value.length > 0) return false
   if (!agreedToTerms.value || !understoodRisks.value) return false
   return true
 })
@@ -213,9 +286,32 @@ const formatNumber = (value: number): string => {
   }).format(value)
 }
 
-// 수익 계산
+// 수익 계산 및 유효성 검사
 const calculateReturns = () => {
   // computed에서 자동으로 계산됨
+  validateInvestment()
+}
+
+// GLI-B 잔액 새로고침
+const refreshBalance = async () => {
+  if (fullAddress.value) {
+    await updateGLIBBalance(fullAddress.value)
+  }
+}
+
+// 최대 투자 가능 금액 설정
+const setMaxAmount = () => {
+  if (!glibBalance.value) return
+  
+  const maxPossible = Math.min(
+    glibBalance.value,
+    props.asset.max_investment_gleb || glibBalance.value
+  )
+  
+  const maxAllowed = Math.max(props.asset.min_investment_gleb, maxPossible)
+  investmentAmount.value = Math.floor(maxAllowed * 100000000) / 100000000 // Round to 8 decimals
+  
+  validateInvestment()
 }
 
 // 모달 닫기
@@ -232,6 +328,7 @@ const resetForm = () => {
   understoodRisks.value = false
   errorMessage.value = ''
   successMessage.value = ''
+  validationErrors.value = []
   isLoading.value = false
 }
 
@@ -242,17 +339,37 @@ const submitInvestment = async () => {
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
+  validationErrors.value = []
   
   try {
+    // 투자 전 마지막 유효성 검사
+    if (fullAddress.value) {
+      const validationResult = await walletAPI.validateInvestment({
+        asset_id: props.asset.id,
+        amount_gleb: investmentAmount.value!,
+        wallet_address: fullAddress.value
+      })
+      
+      if (!validationResult.data.valid) {
+        validationErrors.value = [validationResult.data.message || '투자 조건을 만족하지 않습니다']
+        return
+      }
+    }
+    
     const investmentData = {
       amount_gleb: investmentAmount.value!,
-      amount_usd_at_time: 0, // USD 가치는 백엔드에서 계산하거나 별도 API로 가져올 수 있음
+      amount_usd_at_time: 0, // USD 가치는 백엔드에서 계산
     }
     
     const response = await investInRWAAsset(props.asset.id, investmentData)
     
-    successMessage.value = '투자가 성공적으로 완료되었습니다!'
+    successMessage.value = '🎉 투자가 성공적으로 완료되었습니다!'
     emit('investment-success', response.data)
+    
+    // GLI-B 잔액 업데이트
+    if (fullAddress.value) {
+      await updateGLIBBalance(fullAddress.value)
+    }
     
     // 3초 후 모달 닫기
     setTimeout(() => {
@@ -261,18 +378,41 @@ const submitInvestment = async () => {
     
   } catch (error: any) {
     console.error('Investment failed:', error)
-    errorMessage.value = error.response?.data?.error || '투자 처리 중 오류가 발생했습니다.'
+    const errorMsg = error.response?.data?.error || error.response?.data?.message || '투자 처리 중 오류가 발생했습니다.'
+    
+    if (error.response?.data?.validation_errors) {
+      validationErrors.value = error.response.data.validation_errors
+    } else {
+      errorMessage.value = errorMsg
+    }
   } finally {
     isLoading.value = false
   }
 }
 
-// 모달이 열릴 때마다 폼 리셋
-watch(() => props.show, (newValue) => {
+// 모달이 열릴 때마다 폼 리셋 및 잔액 로드
+watch(() => props.show, async (newValue) => {
   if (newValue) {
     resetForm()
     // 최소 투자 금액을 기본값으로 설정
     investmentAmount.value = props.asset.min_investment_gleb
+    
+    // GLI-B 잔액 업데이트
+    if (fullAddress.value) {
+      await updateGLIBBalance(fullAddress.value)
+    }
+  }
+})
+
+// 투자 금액 변경 시 실시간 유효성 검사
+watch(investmentAmount, () => {
+  validateInvestment()
+})
+
+// 컴포넌트 마운트 시 지갑이 연결되어 있으면 잔액 로드
+onMounted(() => {
+  if (fullAddress.value) {
+    updateGLIBBalance(fullAddress.value)
   }
 })
 </script>
@@ -407,6 +547,91 @@ watch(() => props.show, (newValue) => {
   color: #dc2626;
 }
 
+/* GLI-B Balance Section */
+.balance-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.balance-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.refresh-btn {
+  background: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.refresh-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.balance-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-warning {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.balance-loading {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.balance-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.balance-unit {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.loading-spinner.small {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
 .investment-form {
   space-y: 24px;
 }
@@ -450,11 +675,42 @@ watch(() => props.show, (newValue) => {
 }
 
 .input-constraints {
-  display: flex;
-  justify-content: space-between;
   margin-top: 8px;
   font-size: 0.875rem;
+}
+
+.constraint-row {
+  display: flex;
+  justify-content: space-between;
   color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.balance-constraint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.available-balance {
+  color: #059669;
+  font-weight: 500;
+}
+
+.max-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.max-btn:hover {
+  background: #2563eb;
 }
 
 .returns-preview {
@@ -520,6 +776,39 @@ watch(() => props.show, (newValue) => {
   margin-right: 12px;
   width: 18px;
   height: 18px;
+}
+
+/* Validation Errors */
+.validation-errors {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.validation-errors h5 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.validation-error {
+  color: #b91c1c;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.validation-error:last-child {
+  margin-bottom: 0;
 }
 
 .error-message {

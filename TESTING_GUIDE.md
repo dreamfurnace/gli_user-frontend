@@ -40,7 +40,7 @@ gli_user-frontend/
 **📊 투자 플로우 테스트 (`investment.spec.ts`)**
 - **총 15개 테스트 시나리오**
 - **커버하는 기능:**
-  - RWA 자산 목록 조회 및 표시
+  - RWA 투자 자산 목록 조회 및 표시
   - 자산 필터링 (카테고리, 위험도, 검색)
   - 투자 모달 기능
   - 투자 금액 유효성 검사
@@ -139,7 +139,7 @@ npm run test:e2e:debug
 npx playwright test tests/e2e/investment.spec.ts --debug
 
 # 특정 테스트 케이스만 실행
-npx playwright test -g "사용자가 RWA 자산 목록을 조회할 수 있다"
+npx playwright test -g "사용자가 RWA 투자 자산 목록을 조회할 수 있다"
 ```
 
 #### 레거시 E2E 테스트

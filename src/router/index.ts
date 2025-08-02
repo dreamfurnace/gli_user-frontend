@@ -21,6 +21,12 @@ const router = createRouter({
 			component: () => import("@/views/RWAAssetsView.vue"),
 		},
 		{
+			path: "/rwa-assets/:id",
+			name: "rwa-asset-detail",
+			component: () => import("@/views/RWAAssetDetailView.vue"),
+			props: true,
+		},
+		{
 			path: "/auth",
 			name: "auth",
 			component: () => import("@/views/AuthCenterView.vue"),
@@ -48,6 +54,20 @@ const router = createRouter({
 			path: "/shopping",
 			name: "shopping",
 			component: () => import("@/views/ShoppingMallView.vue"),
+		},
+		{
+			path: "/shopping/product/:id",
+			name: "shopping-product-detail",
+			component: () => import("@/views/ShoppingProductDetailView.vue"),
+			props: true,
+		},
+		{
+			path: "/orders",
+			name: "order-history",
+			component: () => import("@/views/OrderHistoryView.vue"),
+			meta: {
+				requiresAuth: true,
+			},
 		},
 		{
 			path: "/referral",
@@ -144,17 +164,6 @@ const router = createRouter({
 			name: "profile-edit",
 			component: () => import("../views/ProfileEditView.vue"),
 			meta: { requiresAuth: true },
-		},
-		{
-			path: "/user-doc-mgmt",
-			name: "user-doc-mgmt",
-			component: () => import("../views/UserDocMgmtView.vue"),
-			meta: {
-				showHomeButton: true,
-				showLeftToggle: false,
-				showRightToggle: true,
-				requiresAuth: true,
-			},
 		},
 		{
 			path: "/animation-demo",

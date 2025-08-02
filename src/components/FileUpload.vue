@@ -96,7 +96,6 @@ interface UploadedFile {
 }
 
 interface Props {
-  caseRoomId?: string
   contractId?: string
   directory?: string
 }
@@ -184,9 +183,6 @@ const uploadFiles = async (files: File[]) => {
       formData.append('files', file)
     })
 
-    if (props.caseRoomId) {
-      formData.append('case_room', props.caseRoomId)
-    }
     if (props.contractId) {
       formData.append('contract', props.contractId)
     }
@@ -321,7 +317,6 @@ const formatDate = (dateString: string) => {
 const loadExistingFiles = async () => {
   try {
     const params: any = {}
-    if (props.caseRoomId) params.case_room = props.caseRoomId
     if (props.contractId) params.contract = props.contractId
 
     const response = await apiClient.get('/files/user-files/', { params })

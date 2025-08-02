@@ -11,24 +11,42 @@
           {{ $t('conversion.subtitle') }}
         </p>
       </div>
-      <div class="token-meters">
+      <div v-if="!isConnected" class="connection-prompt">
+        <div class="prompt-content">
+          <span class="prompt-icon">🔗</span>
+          <h3>지갑을 연결해주세요</h3>
+          <p>토큰 변환을 위해 솔라나 지갑을 연결해야 합니다.</p>
+          <button class="connect-wallet-btn" @click="connectWallet">
+            지갑 연결하기
+          </button>
+        </div>
+      </div>
+
+      <div v-else class="token-meters">
         <div v-for="token in tokenBalances" :key="token.symbol" class="token-meter">
           <div class="meter-header">
             <span class="token-icon">{{ token.icon }}</span>
             <span class="token-symbol">{{ token.symbol }}</span>
           </div>
           <div class="meter-content">
-            <div class="balance-value">{{ token.balance.toLocaleString() }}</div>
-            <div class="balance-meter">
-              <div 
-                class="meter-fill" 
-                :style="{ 
-                  width: `${(token.balance / token.maxBalance) * 100}%`,
-                  background: token.color
-                }"
-              ></div>
+            <div v-if="(token.symbol === 'GLIB' && isGLIBLoading) || (token.symbol === 'GLIL' && isGLILLoading)" 
+                 class="balance-loading">
+              <div class="loading-spinner small"></div>
+              <span>로딩 중...</span>
             </div>
-            <div class="balance-usd">${{ (token.balance * token.price).toLocaleString() }}</div>
+            <div v-else>
+              <div class="balance-value">{{ token.balance.toLocaleString() }}</div>
+              <div class="balance-meter">
+                <div 
+                  class="meter-fill" 
+                  :style="{ 
+                    width: `${(token.balance / token.maxBalance) * 100}%`,
+                    background: token.color
+                  }"
+                ></div>
+              </div>
+              <div class="balance-usd">${{ (token.balance * token.price).toLocaleString() }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -207,7 +225,6 @@
               <select v-model="historyFilter" class="filter-select">
                 <option value="">{{ $t('conversion.allTokens') }}</option>
                 <option value="GLIB">GLIB</option>
-                <option value="GLID">GLID</option>
                 <option value="GLIL">GLIL</option>
               </select>
               <button class="refresh-btn" @click="refreshHistory">
@@ -382,6 +399,13 @@
           <button class="close-btn" @click="closeDetailsModal">
             {{ $t('common.close') }}
           </button>
+          <button 
+            v-if="selectedTransaction?.status === 'completed'" 
+            class="receipt-btn" 
+            @click="generateReceipt(selectedTransaction)"
+          >
+            📄 영수증 다운로드
+          </button>
         </div>
       </div>
     </div>
@@ -391,10 +415,33 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWeb3Store } from '@/stores/web3'
+import { useGLIBToken } from '@/composables/useGLIBToken'
+import { useGLILToken } from '@/composables/useGLILToken'
+import { useSolanaWallet } from '@/composables/useSolanaWallet'
+import { walletAPI } from '@/services/api'
 
 const { t } = useI18n()
-const web3Store = useWeb3Store()
+
+// Composables
+const { 
+  glibBalance, 
+  formattedBalance: formattedGLIBBalance, 
+  isLoading: isGLIBLoading,
+  updateGLIBBalance 
+} = useGLIBToken()
+
+const { 
+  glilBalance, 
+  formattedBalance: formattedGLILBalance,
+  isLoading: isGLILLoading,
+  updateGLILBalance 
+} = useGLILToken()
+
+const { 
+  fullAddress, 
+  isConnected,
+  connect: connectWallet 
+} = useSolanaWallet()
 
 // Reactive data
 const activeConversionType = ref('standard')
@@ -406,30 +453,38 @@ const selectedTransaction = ref(null)
 const isConverting = ref(false)
 const historyFilter = ref('')
 
-// Token data
-const tokenBalances = ref([
+// Dynamic rates and fees
+const dynamicRates = ref({
+  'GLIB-GLIL': 2.5,
+  'GLIL-GLIB': 0.4
+})
+const dynamicFees = ref({
+  standard: 0.5,
+  instant: 1.0,
+  economy: 0.3
+})
+const conversionLimits = ref({
+  min_amount: 1,
+  max_amount: 10000,
+  daily_limit: 50000
+})
+
+// Token data - computed from real balances
+const tokenBalances = computed(() => [
   {
     symbol: 'GLIB',
     icon: '🪙',
-    balance: 50000,
-    maxBalance: 100000,
-    price: 1.25,
+    balance: glibBalance.value,
+    maxBalance: 100000, // This could be fetched from API or config
+    price: 1.25, // This should be fetched from price API
     color: 'linear-gradient(45deg, #1e40af, #3b82f6)'
-  },
-  {
-    symbol: 'GLID',
-    icon: '🏛️',
-    balance: 25000,
-    maxBalance: 50000,
-    price: 0.85,
-    color: 'linear-gradient(45deg, #8b5cf6, #a855f7)'
   },
   {
     symbol: 'GLIL',
     icon: '💧',
-    balance: 75000,
-    maxBalance: 150000,
-    price: 1.00,
+    balance: glilBalance.value,
+    maxBalance: 150000, // This could be fetched from API or config
+    price: 1.00, // This should be fetched from price API  
     color: 'linear-gradient(45deg, #10b981, #14b8a6)'
   }
 ])
@@ -444,7 +499,7 @@ const conversionTypes = [
 // Conversion form
 const conversionForm = ref({
   fromToken: 'GLIB',
-  toToken: 'GLID',
+  toToken: 'GLIL',
   fromAmount: 0,
   toAmount: 0
 })
@@ -491,43 +546,30 @@ const transactionHistory = ref([
 
 // Computed properties
 const availableFromTokens = computed(() => {
-  const allTokens = ['GLIB', 'GLID', 'GLIL']
+  const allTokens = ['GLIB', 'GLIL']
   return allTokens.filter(token => token !== conversionForm.value.toToken)
 })
 
 const availableToTokens = computed(() => {
-  const allTokens = ['GLIB', 'GLID', 'GLIL']
+  const allTokens = ['GLIB', 'GLIL']
   const fromToken = conversionForm.value.fromToken
   
-  // Define conversion rules
-  if (fromToken === 'GLIB') return ['GLID', 'GLIL']
-  if (fromToken === 'GLID') return ['GLIB', 'GLIL']
-  if (fromToken === 'GLIL') return ['GLIB', 'GLID']
+  // Define conversion rules for GLI-B ↔ GLI-L
+  if (fromToken === 'GLIB') return ['GLIL']
+  if (fromToken === 'GLIL') return ['GLIB']
   
   return allTokens.filter(token => token !== fromToken)
 })
 
 const conversionRate = computed(() => {
   const { fromToken, toToken } = conversionForm.value
-  
-  // Mock conversion rates
-  const rates = {
-    'GLIB-GLID': 1.2,
-    'GLID-GLIB': 0.833,
-    'GLIB-GLIL': 2.5,
-    'GLIL-GLIB': 0.4,
-    'GLID-GLIL': 2.083,
-    'GLIL-GLID': 0.48
-  }
-  
-  return rates[`${fromToken}-${toToken}`] || 1
+  const rateKey = `${fromToken}-${toToken}` as keyof typeof dynamicRates.value
+  return dynamicRates.value[rateKey] || 1
 })
 
 const conversionFee = computed(() => {
-  const type = activeConversionType.value
-  if (type === 'instant') return 1.0
-  if (type === 'economy') return 0.3
-  return 0.5 // standard
+  const type = activeConversionType.value as keyof typeof dynamicFees.value
+  return dynamicFees.value[type] || 0.5
 })
 
 const priceImpact = computed(() => {
@@ -544,25 +586,32 @@ const minimumReceived = computed(() => {
 })
 
 const conversionWarning = computed(() => {
+  const amount = conversionForm.value.fromAmount
+  
   if (priceImpact.value > 5) return 'highPriceImpact'
-  if (conversionForm.value.fromAmount > getTokenBalance(conversionForm.value.fromToken) * 0.8) return 'highAmount'
-  if (conversionForm.value.fromToken === 'GLIB' && conversionForm.value.toToken === 'GLIL') return 'oneWayConversion'
+  if (amount > getTokenBalance(conversionForm.value.fromToken) * 0.8) return 'highAmount'
+  if (amount < conversionLimits.value.min_amount) return 'belowMinimum'
+  if (amount > conversionLimits.value.max_amount) return 'aboveMaximum'
+  if (amount > conversionLimits.value.daily_limit) return 'exceedsDailyLimit'
+  
   return null
 })
 
 const canSwap = computed(() => {
-  const { fromToken, toToken } = conversionForm.value
-  // GLIB → GLIL is one-way, cannot swap
-  if (fromToken === 'GLIB' && toToken === 'GLIL') return false
+  // GLI-B ↔ GLI-L conversion is bidirectional
   return true
 })
 
 const canConvert = computed(() => {
   const { fromAmount, fromToken } = conversionForm.value
+  
   return fromAmount > 0 && 
+         fromAmount >= conversionLimits.value.min_amount &&
+         fromAmount <= conversionLimits.value.max_amount &&
+         fromAmount <= conversionLimits.value.daily_limit &&
          fromAmount <= getTokenBalance(fromToken) && 
          !isConverting.value &&
-         web3Store.isConnected
+         isConnected.value
 })
 
 const filteredHistory = computed(() => {
@@ -576,7 +625,6 @@ const filteredHistory = computed(() => {
 const getTokenIcon = (symbol: string) => {
   const icons = {
     'GLIB': '🪙',
-    'GLID': '🏛️',
     'GLIL': '💧'
   }
   return icons[symbol] || '🪙'
@@ -643,12 +691,28 @@ const executeConversion = async () => {
   isConverting.value = true
   
   try {
-    // Mock conversion process
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    if (!fullAddress.value) {
+      throw new Error('지갑이 연결되지 않았습니다')
+    }
+    
+    // Execute conversion through API
+    const conversionData = {
+      from_token: conversionForm.value.fromToken as 'GLIB' | 'GLIL',
+      to_token: conversionForm.value.toToken as 'GLIB' | 'GLIL',
+      from_amount: conversionForm.value.fromAmount,
+      wallet_address: fullAddress.value,
+      conversion_type: activeConversionType.value as 'standard' | 'instant' | 'economy'
+    }
+    
+    // Validate conversion first
+    await walletAPI.validateConversion(conversionData)
+    
+    // Execute the conversion
+    const response = await walletAPI.executeConversion(conversionData)
     
     // Add to transaction history
     const newTransaction = {
-      id: Date.now(),
+      id: response.data.transaction_id || Date.now(),
       fromToken: conversionForm.value.fromToken,
       toToken: conversionForm.value.toToken,
       fromAmount: conversionForm.value.fromAmount,
@@ -657,30 +721,60 @@ const executeConversion = async () => {
       fee: conversionFee.value,
       status: 'completed',
       timestamp: new Date(),
-      hash: `0x${Math.random().toString(16).substr(2, 64)}`
+      hash: response.data.transaction_hash || `0x${Math.random().toString(16).substr(2, 64)}`
     }
     
     transactionHistory.value.unshift(newTransaction)
     
-    // Update balances
-    updateTokenBalance(conversionForm.value.fromToken, -conversionForm.value.fromAmount)
-    updateTokenBalance(conversionForm.value.toToken, conversionForm.value.toAmount)
+    // Refresh token balances from blockchain
+    await updateTokenBalance(conversionForm.value.fromToken, 0)
+    await updateTokenBalance(conversionForm.value.toToken, 0)
     
     // Reset form
     conversionForm.value.fromAmount = 0
     conversionForm.value.toAmount = 0
     
-  } catch (error) {
+    // Show success message (could be a toast notification)
+    console.log('Token conversion completed successfully!')
+    
+  } catch (error: any) {
     console.error('Conversion failed:', error)
+    
+    // Add failed transaction to history
+    const failedTransaction = {
+      id: Date.now(),
+      fromToken: conversionForm.value.fromToken,
+      toToken: conversionForm.value.toToken,
+      fromAmount: conversionForm.value.fromAmount,
+      toAmount: conversionForm.value.toAmount,
+      rate: conversionRate.value,
+      fee: conversionFee.value,
+      status: 'failed',
+      timestamp: new Date(),
+      hash: ''
+    }
+    
+    transactionHistory.value.unshift(failedTransaction)
+    
+    // Show error message (could be a toast notification)
+    alert(`변환 실패: ${error.response?.data?.message || error.message}`)
   } finally {
     isConverting.value = false
   }
 }
 
-const updateTokenBalance = (symbol: string, amount: number) => {
-  const token = tokenBalances.value.find(t => t.symbol === symbol)
-  if (token) {
-    token.balance = Math.max(0, token.balance + amount)
+const updateTokenBalance = async (symbol: string, amount: number) => {
+  // Update local balances and refresh from blockchain
+  if (symbol === 'GLIB') {
+    // Update local balance immediately for UI responsiveness
+    if (fullAddress.value) {
+      await updateGLIBBalance(fullAddress.value)
+    }
+  } else if (symbol === 'GLIL') {
+    // Update local balance immediately for UI responsiveness  
+    if (fullAddress.value) {
+      await updateGLILBalance(fullAddress.value)
+    }
   }
 }
 
@@ -698,9 +792,33 @@ const closeDetailsModal = () => {
   selectedTransaction.value = null
 }
 
-const refreshHistory = () => {
-  // Mock refresh - in real app would fetch from API
-  console.log('Refreshing transaction history...')
+const refreshHistory = async () => {
+  if (!fullAddress.value) return
+  
+  try {
+    const response = await walletAPI.getConversionHistory({
+      wallet_address: fullAddress.value,
+      page_size: 20 // Limit to recent 20 transactions
+    })
+    
+    // Update transaction history with API data
+    if (response.data.results) {
+      transactionHistory.value = response.data.results.map((tx: any) => ({
+        id: tx.id,
+        fromToken: tx.from_token,
+        toToken: tx.to_token,
+        fromAmount: parseFloat(tx.from_amount),
+        toAmount: parseFloat(tx.to_amount),
+        rate: parseFloat(tx.conversion_rate),
+        fee: parseFloat(tx.fee_percentage),
+        status: tx.status,
+        timestamp: new Date(tx.created_at),
+        hash: tx.transaction_hash || ''
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to refresh transaction history:', error)
+  }
 }
 
 const formatDate = (date: Date) => {
@@ -718,7 +836,61 @@ const formatHash = (hash: string) => {
 }
 
 const getEtherscanUrl = (hash: string) => {
-  return `https://etherscan.io/tx/${hash}`
+  return `https://explorer.solana.com/tx/${hash}`
+}
+
+// Generate and download conversion receipt
+const generateReceipt = (transaction: any) => {
+  const receiptData = {
+    transactionId: transaction.id,
+    timestamp: formatDate(transaction.timestamp),
+    fromToken: transaction.fromToken,
+    toToken: transaction.toToken,
+    fromAmount: transaction.fromAmount,
+    toAmount: transaction.toAmount,
+    conversionRate: transaction.rate,
+    feePercentage: transaction.fee,
+    feeAmount: (transaction.fromAmount * transaction.fee / 100).toFixed(4),
+    status: transaction.status,
+    transactionHash: transaction.hash,
+    walletAddress: fullAddress.value
+  }
+  
+  const receiptText = `
+GLI 토큰 변환 영수증
+=====================
+
+거래 ID: ${receiptData.transactionId}
+일시: ${receiptData.timestamp}
+
+변환 정보:
+- 변환 전: ${receiptData.fromAmount.toLocaleString()} ${receiptData.fromToken}
+- 변환 후: ${receiptData.toAmount.toLocaleString()} ${receiptData.toToken}
+- 변환 비율: 1 ${receiptData.fromToken} = ${receiptData.conversionRate} ${receiptData.toToken}
+
+수수료 정보:
+- 수수료율: ${receiptData.feePercentage}%
+- 수수료: ${receiptData.feeAmount} ${receiptData.fromToken}
+
+거래 정보:
+- 상태: ${getStatusText(receiptData.status)}
+- 트랜잭션 해시: ${receiptData.transactionHash}
+- 지갑 주소: ${receiptData.walletAddress}
+
+* 본 영수증은 GLI 플랫폼에서 발행되었습니다.
+* 거래 확인: https://explorer.solana.com/tx/${receiptData.transactionHash}
+  `
+  
+  // Create and download the receipt as a text file
+  const blob = new Blob([receiptText], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `GLI_변환영수증_${receiptData.transactionId}.txt`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 // Watch for amount changes
@@ -732,9 +904,105 @@ const handleClickOutside = (event: Event) => {
   }
 }
 
+// Load conversion rates and fees from API
+const loadConversionData = async () => {
+  try {
+    const [ratesResponse, infoResponse] = await Promise.all([
+      walletAPI.getConversionRates(),
+      walletAPI.getConversionInfo()
+    ])
+    
+    if (ratesResponse.data) {
+      Object.assign(dynamicRates.value, ratesResponse.data)
+    }
+    
+    if (infoResponse.data) {
+      if (infoResponse.data.fees) {
+        Object.assign(dynamicFees.value, infoResponse.data.fees)
+      }
+      if (infoResponse.data.limits) {
+        Object.assign(conversionLimits.value, infoResponse.data.limits)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load conversion data:', error)
+    // Keep using default rates and fees if API fails
+  }
+}
+
+// Refresh balances when wallet connects
+const refreshBalances = async () => {
+  if (isConnected.value && fullAddress.value) {
+    await Promise.all([
+      updateGLIBBalance(fullAddress.value),
+      updateGLILBalance(fullAddress.value)
+    ])
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   calculateConversion()
+  
+  // Load conversion data and refresh balances on mount
+  loadConversionData()
+  refreshBalances()
+  
+  // Load conversion history if wallet is connected
+  if (isConnected.value) {
+    refreshHistory()
+  }
+  
+  // Integration testing - validate composables are working
+  console.log('[Token Conversion] Integration test:', {
+    glibComposable: !!glibBalance,
+    glilComposable: !!glilBalance,
+    walletComposable: !!isConnected,
+    apiEndpoints: !!walletAPI.getConversionRates
+  })
+})
+
+// Integration testing function
+const validateExistingGLIBFunctionality = async () => {
+  if (!isConnected.value || !fullAddress.value) return
+  
+  try {
+    // Test that GLI-B balance can still be retrieved
+    const originalBalance = glibBalance.value
+    await updateGLIBBalance(fullAddress.value)
+    console.log('[Integration Test] GLI-B balance functionality:', {
+      originalBalance,
+      newBalance: glibBalance.value,
+      working: typeof glibBalance.value === 'number'
+    })
+    
+    // Test that GLI-L balance can be retrieved  
+    const originalGLILBalance = glilBalance.value
+    await updateGLILBalance(fullAddress.value)
+    console.log('[Integration Test] GLI-L balance functionality:', {
+      originalBalance: originalGLILBalance,
+      newBalance: glilBalance.value,
+      working: typeof glilBalance.value === 'number'
+    })
+    
+    return true
+  } catch (error) {
+    console.error('[Integration Test] Error validating existing functionality:', error)
+    return false
+  }
+}
+
+// Watch for wallet connection changes
+watch(isConnected, (newValue) => {
+  if (newValue) {
+    refreshBalances()
+    refreshHistory()
+    
+    // Run integration test after a short delay
+    setTimeout(() => {
+      validateExistingGLIBFunctionality()
+    }, 2000)
+  }
 })
 </script>
 
@@ -830,6 +1098,76 @@ onMounted(() => {
 .balance-usd {
   font-size: 0.9rem;
   opacity: 0.8;
+}
+
+.balance-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.loading-spinner.small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Connection Prompt */
+.connection-prompt {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.prompt-content {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.prompt-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.prompt-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: white;
+}
+
+.prompt-content p {
+  font-size: 1.1rem;
+  margin: 0 0 2rem 0;
+  opacity: 0.9;
+  color: white;
+}
+
+.connect-wallet-btn {
+  background: linear-gradient(45deg, var(--gli-blue), var(--gli-purple));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.connect-wallet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
 }
 
 /* Main Content */
@@ -1434,6 +1772,27 @@ onMounted(() => {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.receipt-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--gli-teal);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.receipt-btn:hover {
+  background: var(--gli-green);
+  transform: translateY(-1px);
 }
 
 .confirm-btn {

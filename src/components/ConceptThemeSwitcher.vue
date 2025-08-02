@@ -8,7 +8,12 @@
 			@click="handleMobileClick"
 			:class="{ 'is-active': showOptions }"
 		>
-			<span class="trigger-icon">🎨</span>
+			<svg class="trigger-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M12 3C16.97 3 21 7.03 21 12C21 16.97 16.97 21 12 21C11.45 21 11 20.55 11 20C11 19.45 11.45 19 12 19C15.86 19 19 15.86 19 12C19 8.14 15.86 5 12 5C8.14 5 5 8.14 5 12C5 12.55 4.55 13 4 13C3.45 13 3 12.55 3 12C3 7.03 7.03 3 12 3Z" fill="currentColor"/>
+				<circle cx="9" cy="9" r="1.5" fill="currentColor"/>
+				<circle cx="15" cy="9" r="1.5" fill="currentColor"/>
+				<circle cx="9" cy="15" r="1.5" fill="currentColor"/>
+			</svg>
 		</button>
 
 		<!-- 옵션 메뉴 -->
@@ -57,7 +62,13 @@
 			>
 				<div class="coming-soon-modal" @click.stop>
 					<div class="modal-content">
-						<div class="modal-icon">✨</div>
+						<div class="modal-icon">
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M12 0L13.09 8.26L22 9L13.09 9.74L12 18L10.91 9.74L2 9L10.91 8.26L12 0Z" fill="currentColor"/>
+								<path d="M19.5 3.5L20.5 7.5L24.5 8.5L20.5 9.5L19.5 13.5L18.5 9.5L14.5 8.5L18.5 7.5L19.5 3.5Z" fill="currentColor"/>
+								<path d="M5.5 14.5L6.5 18.5L10.5 19.5L6.5 20.5L5.5 24.5L4.5 20.5L0.5 19.5L4.5 18.5L5.5 14.5Z" fill="currentColor"/>
+							</svg>
+						</div>
 						<div class="modal-text">럭셔리 테마는 구상 중입니다</div>
 					</div>
 				</div>
@@ -202,7 +213,9 @@ onUnmounted(() => {
 }
 
 .trigger-icon {
-	font-size: 1.5rem;
+	width: 1.5rem;
+	height: 1.5rem;
+	color: white;
 	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 	transition: transform 0.3s ease;
 }
@@ -353,8 +366,15 @@ onUnmounted(() => {
 }
 
 .modal-icon {
-	font-size: 3rem;
+	display: flex;
+	justify-content: center;
 	margin-bottom: var(--space-4);
+}
+
+.modal-icon svg {
+	width: 3rem;
+	height: 3rem;
+	color: var(--gli-gold);
 }
 
 .modal-text {
@@ -418,7 +438,8 @@ onUnmounted(() => {
 	}
 
 	.trigger-icon {
-		font-size: 1.2rem;
+		width: 1.2rem;
+		height: 1.2rem;
 	}
 
 	.options-menu {
@@ -448,8 +469,9 @@ onUnmounted(() => {
 		padding: var(--space-6);
 	}
 
-	.modal-icon {
-		font-size: 2rem;
+	.modal-icon svg {
+		width: 2rem;
+		height: 2rem;
 	}
 
 	.modal-text {

@@ -41,7 +41,6 @@ describe('ProfileEditView', () => {
         plugins: [router, pinia],
         stubs: {
           Header: true,
-          LeftSidebar: true,
         },
       },
     })

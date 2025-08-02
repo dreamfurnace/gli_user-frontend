@@ -342,6 +342,7 @@ export default {
     subtitle: 'Manage your information, referral codes, token addresses, and transaction history',
     tabs: {
       profile: 'Profile',
+      portfolio: 'Investment Portfolio',
       referral: 'Referral Code',
       tokens: 'Token Addresses',
       transactions: 'Transaction History',

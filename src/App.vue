@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref, provide } from "vue";
 import { RouterView } from "vue-router";
 import GLIHeader from "@/components/GLIHeader.vue";
 import GLILeftSidebar from "@/components/GLILeftSidebar.vue";
@@ -14,6 +14,22 @@ import "@/styles/animations/keyframes.css";
 
 const themeStore = useThemeStore();
 const web3Store = useWeb3Store();
+
+// Sidebar collapse state management
+const isLeftSidebarCollapsed = ref(false);
+const isRightPanelCollapsed = ref(false);
+
+// Provide the collapse state to child components
+provide('sidebarCollapsed', {
+	isLeftSidebarCollapsed,
+	isRightPanelCollapsed,
+	setLeftSidebarCollapsed: (collapsed: boolean) => {
+		isLeftSidebarCollapsed.value = collapsed;
+	},
+	setRightPanelCollapsed: (collapsed: boolean) => {
+		isRightPanelCollapsed.value = collapsed;
+	}
+});
 
 let cleanupThemeDetection: (() => void) | undefined;
 
@@ -41,7 +57,13 @@ onUnmounted(() => {
 		<GLIHeader />
 		<GLILeftSidebar />
 
-		<main class="main-content">
+		<main 
+			class="main-content" 
+			:class="{ 
+				'sidebar-collapsed': isLeftSidebarCollapsed,
+				'right-panel-collapsed': isRightPanelCollapsed 
+			}"
+		>
 			<RouterView v-slot="{ Component, route }">
 				<transition name="fade" mode="out-in">
 					<component :is="Component" :key="route.fullPath" />
@@ -248,12 +270,41 @@ button {
 	opacity: 0;
 }
 
+/* Sidebar collapse states */
+.main-content.sidebar-collapsed {
+	margin-left: 70px; /* Collapsed sidebar width */
+}
+
+.main-content.right-panel-collapsed {
+	margin-right: 0; /* No right panel */
+}
+
+/* Combined states for better performance */
+.main-content.sidebar-collapsed.right-panel-collapsed {
+	margin-left: 70px;
+	margin-right: 0;
+}
+
 /* 반응형 */
+@media (max-width: 1200px) {
+	.main-content {
+		margin-right: 0; /* 큰 화면이 아닐 때는 우측 패널 마진 제거 */
+	}
+}
+
 @media (max-width: 768px) {
 	.main-content {
 		margin-left: 0;
 		margin-right: 0;
 		padding: 1rem;
+	}
+	
+	/* 모바일에서 사이드바/패널 상태 클래스 무시 */
+	.main-content.sidebar-collapsed,
+	.main-content.right-panel-collapsed,
+	.main-content.sidebar-collapsed.right-panel-collapsed {
+		margin-left: 0;
+		margin-right: 0;
 	}
 }
 
