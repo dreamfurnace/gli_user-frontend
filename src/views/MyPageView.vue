@@ -101,6 +101,19 @@
               <div class="security-options">
                 <div class="security-item">
                   <div class="security-info">
+                    <span class="security-label">얼굴 인증</span>
+                    <span class="security-desc">실시간 얼굴 랜드마크 검증을 통한 본인 확인</span>
+                  </div>
+                  <button 
+                    class="security-btn" 
+                    :class="{ enabled: userInfo.faceVerified }"
+                    @click="toggleFaceVerification"
+                  >
+                    {{ userInfo.faceVerified ? '✓ 인증 완료' : '얼굴 인증 시작' }}
+                  </button>
+                </div>
+                <div class="security-item">
+                  <div class="security-info">
                     <span class="security-label">{{ $t('mypage.profile.twoFactor') }}</span>
                     <span class="security-desc">{{ $t('mypage.profile.twoFactorDesc') }}</span>
                   </div>
@@ -117,7 +130,29 @@
                     {{ $t('mypage.profile.changePassword') }}
                   </button>
                 </div>
+                <div class="security-item">
+                  <div class="security-info">
+                    <span class="security-label">로그아웃</span>
+                    <span class="security-desc">현재 세션에서 로그아웃합니다</span>
+                  </div>
+                  <button class="security-btn logout-btn" @click="handleLogout">
+                    <LogoutIcon class="logout-icon" />
+                    로그아웃
+                  </button>
+                </div>
               </div>
+            </div>
+
+            <!-- 얼굴 인증 카드 -->
+            <div class="info-card" v-if="showFaceVerification">
+              <h3 class="card-title">🔐 얼굴 인증</h3>
+              <FaceVerification 
+                :auto-start="false"
+                :required-confidence="0.8"
+                :verification-duration="3000"
+                @verified="onFaceVerified"
+                @error="onFaceVerificationError"
+              />
             </div>
           </div>
         </div>
@@ -378,9 +413,8 @@
             <!-- 지갑 연결 상태 -->
             <div class="wallet-status">
               <div class="status-info">
-                <span class="status-icon">{{ web3Store.isConnected ? '🟢' : '🔴' }}</span>
                 <span class="status-text">
-                  {{ web3Store.isConnected ? $t('mypage.wallet.connected') : $t('mypage.wallet.disconnected') }}
+                  {{ web3Store.isConnected ? '🟢 ' + $t('mypage.wallet.connected') : '🔴 ' + $t('mypage.wallet.disconnected') }}
                 </span>
               </div>
               <button v-if="!web3Store.isConnected" class="connect-btn" @click="connectWallet">
@@ -493,9 +527,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWeb3Store } from '@/stores/web3'
+import { useAuthStore } from '@/stores/auth'
+import LogoutIcon from '@/components/icons/LogoutIcon.vue'
+import FaceVerification from '@/components/FaceVerification.vue'
 
 const { t } = useI18n()
 const web3Store = useWeb3Store()
+const authStore = useAuthStore()
 
 // 활성 탭
 const activeTab = ref('profile')
@@ -526,8 +564,12 @@ const userInfo = ref({
   joinDate: new Date('2024-01-15'),
   lastLogin: new Date(),
   referralCode: 'GLI2024ABC123',
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
+  faceVerified: false
 })
+
+// 얼굴 인증 관련 상태
+const showFaceVerification = ref(false)
 
 // 로그인 세션
 const loginSessions = ref([
@@ -794,6 +836,61 @@ const processWithdrawal = async () => {
 const openPasswordChange = () => {
   // 비밀번호 변경 모달 열기 (실제 구현에서)
   console.log('Open password change modal')
+}
+
+const handleLogout = async () => {
+  try {
+    await authStore.logout()
+  } catch (error) {
+    console.error('로그아웃 실패:', error)
+  }
+}
+
+// 얼굴 인증 관련 메서드
+const toggleFaceVerification = () => {
+  if (userInfo.value.faceVerified) {
+    // 이미 인증된 경우 재인증 옵션 제공
+    const confirm = window.confirm('이미 인증이 완료되었습니다. 다시 인증하시겠습니까?')
+    if (confirm) {
+      userInfo.value.faceVerified = false
+      showFaceVerification.value = true
+      // 스크롤을 얼굴 인증 카드로 이동
+      setTimeout(() => {
+        const element = document.querySelector('.info-card:last-child')
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  } else {
+    // 인증되지 않은 경우 인증 시작
+    showFaceVerification.value = true
+    // 스크롤을 얼굴 인증 카드로 이동
+    setTimeout(() => {
+      const element = document.querySelector('.info-card:last-child')
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
+  }
+}
+
+const onFaceVerified = (verified: boolean) => {
+  if (verified) {
+    userInfo.value.faceVerified = true
+    showFaceVerification.value = false
+    
+    // 성공 알림
+    alert('✅ 얼굴 인증이 성공적으로 완료되었습니다!')
+    
+    // 사용자 정보를 서버에 업데이트 (실제 구현에서)
+    // await updateUserVerificationStatus({ faceVerified: true })
+  }
+}
+
+const onFaceVerificationError = (error: string) => {
+  console.error('Face verification error:', error)
+  alert(`❌ 얼굴 인증 실패: ${error}`)
 }
 
 onMounted(() => {
@@ -1122,6 +1219,23 @@ onMounted(() => {
 .security-btn:not(.enabled) {
   background: var(--text-secondary);
   color: white;
+}
+
+.security-btn.logout-btn {
+  background: var(--gli-orange);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.security-btn.logout-btn:hover {
+  background: #e74c3c;
+}
+
+.logout-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 /* 추천인 그리드 */

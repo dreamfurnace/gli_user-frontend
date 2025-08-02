@@ -17,7 +17,7 @@ interface User {
 }
 
 interface LoginCredentials {
-  email: string
+  username: string
   password: string
   device_type?: string
 }
@@ -58,14 +58,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await authAPI.login(credentials)
-      const { tokens, user: userData } = response.data
+      const { token, user: userData } = response.data
 
-      // 토큰 저장
-      accessToken.value = tokens.access_token
-      refreshToken.value = tokens.refresh_token
-      localStorage.setItem('access_token', tokens.access_token)
-      localStorage.setItem('refresh_token', tokens.refresh_token)
-      localStorage.setItem('tokens', JSON.stringify(tokens))
+      // 토큰 저장 (backend response format: token.access, token.refresh)
+      accessToken.value = token.access
+      refreshToken.value = token.refresh
+      localStorage.setItem('access_token', token.access)
+      localStorage.setItem('refresh_token', token.refresh)
+      localStorage.setItem('tokens', JSON.stringify(token))
 
       // 사용자 정보 저장
       user.value = userData

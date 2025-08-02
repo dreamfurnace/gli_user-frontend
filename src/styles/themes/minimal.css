@@ -1,0 +1,202 @@
+/* Minimal Theme - Light Mode */
+[data-concept-theme="minimal"][data-color-mode="light"],
+[data-theme="minimal-light"] {
+  /* Minimal Color Palette - Pure B&W */
+  --minimal-black: #000000;
+  --minimal-white: #ffffff;
+  --minimal-gray: #f0f0f0;
+  --minimal-gray-dark: #808080;
+  --minimal-accent: #000000;
+
+  /* Brand Colors - Pure B&W */
+  --brand-primary: var(--minimal-black);
+  --brand-secondary: var(--minimal-gray-dark);
+  --brand-accent: var(--minimal-black);
+
+  /* Background Colors */
+  --bg-primary: var(--minimal-white);
+  --bg-secondary: var(--minimal-gray);
+  --bg-tertiary: #f1f3f4;
+  --bg-overlay: rgba(0, 0, 0, 0.1);
+
+  /* Text Colors */
+  --text-primary: var(--minimal-black);
+  --text-secondary: var(--minimal-gray-dark);
+  --text-tertiary: #adb5bd;
+  --text-inverse: var(--minimal-white);
+
+  /* Border Colors */
+  --border-primary: #e9ecef;
+  --border-secondary: #dee2e6;
+  --border-focus: var(--minimal-black);
+
+  /* Interactive Colors */
+  --interactive-primary: var(--minimal-black);
+  --interactive-primary-hover: #333333;
+  --interactive-secondary: var(--minimal-gray);
+  --interactive-secondary-hover: #e9ecef;
+
+  /* Status Colors - High contrast B&W */
+  --status-success: #000000;
+  --status-warning: #000000;
+  --status-error: #000000;
+  --status-info: #000000;
+
+  /* Component Specific */
+  --header-bg: var(--minimal-white);
+  --sidebar-bg: var(--minimal-gray);
+  --card-bg: var(--minimal-white);
+  --input-bg: var(--minimal-white);
+  --button-primary-bg: var(--minimal-black);
+  --button-primary-text: var(--minimal-white);
+
+  /* Minimal Effects - Sharp shadows, no blur */
+  --minimal-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+  --minimal-border: 2px solid var(--border-primary);
+  
+  /* Override design tokens for minimal theme */
+  --radius-none: 0;
+  --radius-sm: 0;
+  --radius-base: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-full: 0;
+  
+  /* High contrast borders */
+  --border-primary: #000000;
+  --border-secondary: #333333;
+  --shadow-sm: var(--minimal-shadow);
+  --shadow-base: var(--minimal-shadow);
+  --shadow-md: var(--minimal-shadow);
+  --shadow-lg: var(--minimal-shadow);
+  --shadow-xl: var(--minimal-shadow);
+}
+
+/* Minimal Theme - Dark Mode */
+[data-concept-theme="minimal"][data-color-mode="dark"],
+[data-theme="minimal-dark"] {
+  /* Minimal Color Palette - Dark */
+  --minimal-black: #ffffff;
+  --minimal-white: #000000;
+  --minimal-gray: #1a1a1a;
+  --minimal-gray-dark: #cccccc;
+  --minimal-accent: #0080ff;
+
+  /* Brand Colors */
+  --brand-primary: var(--minimal-black);
+  --brand-secondary: var(--minimal-gray-dark);
+  --brand-accent: var(--minimal-accent);
+
+  /* Background Colors */
+  --bg-primary: var(--minimal-white);
+  --bg-secondary: var(--minimal-gray);
+  --bg-tertiary: #2a2a2a;
+  --bg-overlay: rgba(255, 255, 255, 0.1);
+
+  /* Text Colors */
+  --text-primary: var(--minimal-black);
+  --text-secondary: var(--minimal-gray-dark);
+  --text-tertiary: #999999;
+  --text-inverse: var(--minimal-white);
+
+  /* Border Colors */
+  --border-primary: #ffffff;
+  --border-secondary: #cccccc;
+  --border-focus: var(--minimal-accent);
+
+  /* Interactive Colors */
+  --interactive-primary: var(--minimal-black);
+  --interactive-primary-hover: #cccccc;
+  --interactive-secondary: var(--minimal-gray);
+  --interactive-secondary-hover: #2a2a2a;
+
+  /* Status Colors - High contrast B&W */
+  --status-success: #ffffff;
+  --status-warning: #ffffff;
+  --status-error: #ffffff;
+  --status-info: #ffffff;
+
+  /* Component Specific */
+  --header-bg: var(--minimal-white);
+  --sidebar-bg: var(--minimal-gray);
+  --card-bg: var(--minimal-white);
+  --input-bg: var(--minimal-white);
+  --button-primary-bg: var(--minimal-black);
+  --button-primary-text: var(--minimal-white);
+
+  /* Minimal Effects - Sharp shadows, no blur */
+  --minimal-shadow: 4px 4px 0px rgba(255, 255, 255, 0.8);
+  --minimal-border: 2px solid var(--border-primary);
+  
+  /* Override design tokens for minimal theme */
+  --radius-none: 0;
+  --radius-sm: 0;
+  --radius-base: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-full: 0;
+  
+  /* High contrast borders */
+  --shadow-sm: var(--minimal-shadow);
+  --shadow-base: var(--minimal-shadow);
+  --shadow-md: var(--minimal-shadow);
+  --shadow-lg: var(--minimal-shadow);
+  --shadow-xl: var(--minimal-shadow);
+}
+
+/* Global Minimal Theme Overrides - Remove ALL border-radius */
+[data-concept-theme="minimal"] * {
+  border-radius: 0 !important;
+}
+
+[data-concept-theme="minimal"] *:before,
+[data-concept-theme="minimal"] *:after {
+  border-radius: 0 !important;
+}
+
+/* Minimal theme specific component overrides */
+[data-concept-theme="minimal"] .btn,
+[data-concept-theme="minimal"] button {
+  border-radius: 0 !important;
+  border: 2px solid var(--border-primary) !important;
+  box-shadow: var(--minimal-shadow) !important;
+}
+
+[data-concept-theme="minimal"] .card {
+  border-radius: 0 !important;
+  border: 2px solid var(--border-primary) !important;
+  box-shadow: var(--minimal-shadow) !important;
+}
+
+[data-concept-theme="minimal"] .input,
+[data-concept-theme="minimal"] input,
+[data-concept-theme="minimal"] textarea,
+[data-concept-theme="minimal"] select {
+  border-radius: 0 !important;
+  border: 2px solid var(--border-primary) !important;
+}
+
+[data-concept-theme="minimal"] img {
+  border-radius: 0 !important;
+}
+
+/* Remove any soft shadows or blur effects */
+[data-concept-theme="minimal"] * {
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+[data-concept-theme="minimal"] *:not(.minimal-shadow-allowed) {
+  box-shadow: var(--minimal-shadow) !important;
+}
+
+/* High contrast borders for better visibility */
+[data-concept-theme="minimal"] .border,
+[data-concept-theme="minimal"] [class*="border"] {
+  border-color: var(--border-primary) !important;
+  border-width: 2px !important;
+}

@@ -1,0 +1,91 @@
+/* Default Theme - Light Mode */
+[data-concept-theme="default"][data-color-mode="light"],
+[data-theme="default-light"] {
+  /* Brand Colors */
+  --brand-primary: var(--color-primary-600);
+  --brand-secondary: var(--color-secondary-600);
+  --brand-accent: var(--color-primary-500);
+
+  /* Background Colors */
+  --bg-primary: var(--color-neutral-50);
+  --bg-secondary: var(--color-neutral-100);
+  --bg-tertiary: var(--color-neutral-200);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text Colors */
+  --text-primary: var(--color-neutral-900);
+  --text-secondary: var(--color-neutral-700);
+  --text-tertiary: var(--color-neutral-500);
+  --text-inverse: var(--color-neutral-50);
+
+  /* Border Colors */
+  --border-primary: var(--color-neutral-300);
+  --border-secondary: var(--color-neutral-200);
+  --border-focus: var();
+
+  /* Interactive Colors */
+  --interactive-primary: var(--brand-primary);
+  --interactive-primary-hover: var(--color-primary-700);
+  --interactive-secondary: var(--color-neutral-200);
+  --interactive-secondary-hover: var(--color-neutral-300);
+
+  /* Status Colors */
+  --status-success: var(--color-success);
+  --status-warning: var(--color-warning);
+  --status-error: var(--color-error);
+  --status-info: var(--color-info);
+
+  /* Component Specific */
+  --header-bg: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 50%, var(--color-primary-800) 100%);
+  --sidebar-bg: var(--bg-secondary);
+  --card-bg: var(--color-neutral-50);
+  --input-bg: var(--color-neutral-50);
+  --button-primary-bg: var(--interactive-primary);
+  --button-primary-text: var(--text-inverse);
+}
+
+/* Default Theme - Dark Mode */
+[data-concept-theme="default"][data-color-mode="dark"],
+[data-theme="default-dark"] {
+  /* Brand Colors */
+  --brand-primary: var(--color-primary-400);
+  --brand-secondary: var(--color-secondary-400);
+  --brand-accent: var(--color-primary-300);
+
+  /* Background Colors */
+  --bg-primary: var(--color-neutral-900);
+  --bg-secondary: var(--color-neutral-800);
+  --bg-tertiary: var(--color-neutral-700);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Text Colors */
+  --text-primary: var(--color-neutral-100);
+  --text-secondary: var(--color-neutral-300);
+  --text-tertiary: var(--color-neutral-500);
+  --text-inverse: var(--color-neutral-900);
+
+  /* Border Colors */
+  --border-primary: var(--color-neutral-700);
+  --border-secondary: var(--color-neutral-800);
+  --border-focus: var(--brand-primary);
+
+  /* Interactive Colors */
+  --interactive-primary: var(--brand-primary);
+  --interactive-primary-hover: var(--color-primary-300);
+  --interactive-secondary: var(--color-neutral-800);
+  --interactive-secondary-hover: var(--color-neutral-700);
+
+  /* Status Colors */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: var(--brand-primary);
+
+  /* Component Specific */
+  --header-bg: linear-gradient(135deg, var(--color-neutral-900) 0%, var(--color-neutral-800) 50%, var(--color-neutral-700) 100%);
+  --sidebar-bg: var(--color-neutral-800);
+  --card-bg: var(--color-neutral-800);
+  --input-bg: var(--color-neutral-800);
+  --button-primary-bg: var(--interactive-primary);
+  --button-primary-text: var(--color-neutral-900);
+}

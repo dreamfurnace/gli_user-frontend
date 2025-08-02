@@ -2,8 +2,12 @@
 	<aside class="gli-sidebar" :class="{ collapsed: isCollapsed }">
 		<div class="sidebar-header">
 			<button class="collapse-btn" @click="toggleCollapse">
-				<span v-if="isCollapsed">▶︎</span>
-				<span v-else>◀︎</span>
+				<svg v-if="isCollapsed" viewBox="0 0 24 24" class="collapse-icon">
+					<path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z" />
+				</svg>
+				<svg v-else viewBox="0 0 24 24" class="collapse-icon">
+					<path d="M15.41 7.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" />
+				</svg>
 			</button>
 		</div>
 
@@ -46,8 +50,8 @@
 							:class="{ active: $route.path.startsWith('/rwa-assets') }"
 						>
 							<span class="nav-icon">🏗️</span>
-							<span class="nav-text" v-if="!isCollapsed">RWA 자산 목록</span>
-							<span class="nav-tooltip" v-if="isCollapsed">RWA 자산 목록</span>
+							<span class="nav-text" v-if="!isCollapsed">RWA 투자 자산 목록</span>
+							<span class="nav-tooltip" v-if="isCollapsed">RWA 투자 자산 목록</span>
 						</router-link>
 					</li>
 
@@ -308,14 +312,15 @@ onUnmounted(() => {
 	left: 0;
 	top: 80px; /* 헤더 높이만큼 */
 	height: calc(100vh - 80px);
-	width: 280px;
-	background: var(--gradient-dark);
-	color: white;
-	transition: all 0.3s ease;
+	width: 250px;
+	background: var(--sidebar-bg, var(--gradient-dark));
+	color: var(--text-primary, white);
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 	z-index: 50;
 	box-shadow: var(--shadow-lg);
-	border-right: 1px solid var(--border-color);
+	border-right: 1px solid var(--border-primary, var(--border-color));
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .gli-sidebar.collapsed {
@@ -333,23 +338,33 @@ onUnmounted(() => {
 }
 
 .collapse-btn {
-	border: none;
-	color: white;
-	background: rgba(255, 255, 255, 0.081);
-	padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-	border-radius: 8px;
+	border: 1px solid var(--border-secondary, transparent);
+	color: var(--text-primary, white);
+	background: var(--interactive-secondary, rgba(255, 255, 255, 0.081));
+	padding: 0;
+	border-radius: var(--radius-md, 8px);
 	cursor: pointer;
-	font-size: 1.2rem;
-	transition: all 0.3s ease;
+	transition: all var(--transition-base, 0.3s ease);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 40px;
-	min-width: 40px;
+	min-height: 34px;
+	min-width: 34px;
+}
+
+.collapse-icon {
+	width: 16px;
+	height: 16px;
+	fill: currentColor;
+	transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapse-btn:hover .collapse-icon {
+	transform: scale(1.1);
 }
 
 .collapse-btn:hover {
-	background: rgba(255, 255, 255, 0.2);
+	background: var(--interactive-secondary-hover, rgba(255, 255, 255, 0.2));
 	transform: scale(1.1);
 }
 
@@ -410,6 +425,19 @@ onUnmounted(() => {
 .nav-text {
 	font-weight: 500;
 	white-space: nowrap;
+	opacity: 1;
+	transition:
+		opacity 0.3s ease 0.1s,
+		transform 0.3s ease 0.1s;
+	transform: translateX(0);
+}
+
+.collapsed .nav-text {
+	opacity: 0;
+	transform: translateX(-10px);
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
 }
 
 .nav-tooltip {
@@ -460,6 +488,23 @@ onUnmounted(() => {
 	padding: 1.5rem;
 	border-top: 1px solid rgba(255, 255, 255, 0.1);
 	background: rgba(255, 255, 255, 0.05);
+	max-height: 400px;
+	overflow: hidden;
+	transition:
+		max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.3s ease 0.1s,
+		padding 0.3s ease;
+	opacity: 1;
+}
+
+.collapsed .token-balances {
+	max-height: 0;
+	opacity: 0;
+	padding: 0 1.5rem;
+	transition:
+		max-height 0.3s ease,
+		opacity 0.2s ease,
+		padding 0.3s ease;
 }
 
 .balance-title {
@@ -516,7 +561,15 @@ onUnmounted(() => {
 .nav-arrow {
 	margin-left: auto;
 	font-size: 0.9rem;
-	transition: transform 0.3s ease;
+	transition:
+		transform 0.3s ease,
+		opacity 0.3s ease 0.1s;
+	opacity: 1;
+}
+
+.collapsed .nav-arrow {
+	opacity: 0;
+	transition: opacity 0.2s ease;
 }
 
 /* 하위 메뉴 */
@@ -526,6 +579,24 @@ onUnmounted(() => {
 	border-left: 2px solid rgba(255, 255, 255, 0.1);
 	margin-left: 1.5rem;
 	margin-bottom: 0.5rem;
+	max-height: 500px;
+	overflow: hidden;
+	transition:
+		max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.3s ease 0.1s;
+	opacity: 1;
+}
+
+.collapsed .submenu {
+	max-height: 0;
+	opacity: 0;
+	padding-top: 0;
+	margin-bottom: 0;
+	transition:
+		max-height 0.3s ease,
+		opacity 0.2s ease,
+		padding 0.3s ease,
+		margin 0.3s ease;
 }
 
 .submenu-link {
@@ -566,14 +637,28 @@ onUnmounted(() => {
 }
 
 /* 다크 테마 */
-:global(.dark) .gli-sidebar {
-	background: var(--gradient-dark);
+/* 테마별 스타일 오버라이드 */
+:global([data-color-mode="dark"]) .gli-sidebar {
+	background: var(--sidebar-bg);
+	color: var(--text-primary);
 }
 
-:global(.dark) .nav-link.active {
-	/* background: linear-gradient(90deg, var(--gli-blue), var(--gli-purple)); */
-	/* border-right: 3px solid var(--gli-gold); */
+:global([data-color-mode="dark"]) .nav-link.active {
 	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Minimal 테마 특별 스타일 */
+:global([data-concept-theme="minimal"]) .gli-sidebar {
+	border-radius: 0 !important;
+}
+
+:global([data-concept-theme="minimal"]) .gli-sidebar * {
+	border-radius: 0 !important;
+}
+
+/* Luxury 테마 특별 스타일 */
+:global([data-concept-theme="luxury"]) .gli-sidebar {
+	background: var(--luxury-gradient, var(--sidebar-bg));
 }
 
 /* 스크롤바 스타일 */

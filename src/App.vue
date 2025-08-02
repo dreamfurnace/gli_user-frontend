@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { RouterView } from "vue-router";
 import GLIHeader from "@/components/GLIHeader.vue";
 import GLILeftSidebar from "@/components/GLILeftSidebar.vue";
 import GLIRightPanel from "@/components/GLIRightPanel.vue";
 import NavigationRedirectModal from "@/components/NavigationRedirectModal.vue";
+import ConceptThemeSwitcher from "@/components/ConceptThemeSwitcher.vue";
 import { useThemeStore } from "@/stores/theme";
 import { useWeb3Store } from "@/stores/web3";
 import { showRedirectModal } from "@/router/guards";
@@ -14,12 +15,24 @@ import "@/styles/animations/keyframes.css";
 const themeStore = useThemeStore();
 const web3Store = useWeb3Store();
 
+let cleanupThemeDetection: (() => void) | undefined;
+
 onMounted(() => {
 	// 테마 초기화
 	themeStore.loadTheme();
+	
+	// 시스템 테마 감지 활성화
+	cleanupThemeDetection = themeStore.enableSystemThemeDetection();
 
 	// Web3 초기화
 	web3Store.init();
+});
+
+onUnmounted(() => {
+	// 테마 감지 정리
+	if (cleanupThemeDetection) {
+		cleanupThemeDetection();
+	}
 });
 </script>
 
@@ -40,6 +53,9 @@ onMounted(() => {
 
 		<!-- Navigation Redirect Modal -->
 		<NavigationRedirectModal :show="showRedirectModal" />
+
+		<!-- Concept Theme Switcher -->
+		<ConceptThemeSwitcher />
 	</div>
 </template>
 
@@ -175,7 +191,7 @@ body {
 
 .main-content {
 	flex: 1;
-	/* margin-left: 280px; 사이드바 너비 */
+	margin-left: 250px; /* GLI Left Sidebar 너비 */
 	margin-right: 320px; /* Right Panel 너비 */
 	padding: 2rem;
 	background: var(--bg-secondary);

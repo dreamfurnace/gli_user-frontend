@@ -1,0 +1,119 @@
+/* Luxury Theme - Light Mode */
+[data-concept-theme="luxury"][data-color-mode="light"],
+[data-theme="luxury-light"] {
+  /* Luxury Color Palette */
+  --luxury-gold: #d4af37;
+  --luxury-gold-light: #f4e4a1;
+  --luxury-gold-dark: #b8941f;
+  --luxury-bronze: #cd7f32;
+  --luxury-deep-blue: #1a237e;
+  --luxury-navy: #0d1b2a;
+  --luxury-cream: #f5f5dc;
+
+  /* Brand Colors */
+  --brand-primary: var(--luxury-gold-dark);
+  --brand-secondary: var(--luxury-bronze);
+  --brand-accent: var(--luxury-gold);
+
+  /* Background Colors */
+  --bg-primary: var(--luxury-cream);
+  --bg-secondary: #f8f6f0;
+  --bg-tertiary: #f0ede5;
+  --bg-overlay: rgba(212, 175, 55, 0.3);
+
+  /* Text Colors */
+  --text-primary: var(--luxury-navy);
+  --text-secondary: var(--luxury-deep-blue);
+  --text-tertiary: #5a6b7d;
+  --text-inverse: var(--luxury-cream);
+
+  /* Border Colors */
+  --border-primary: var(--luxury-gold);
+  --border-secondary: var(--luxury-bronze);
+  --border-focus: var(--luxury-gold-light);
+
+  /* Interactive Colors */
+  --interactive-primary: var(--luxury-gold);
+  --interactive-primary-hover: var(--luxury-gold-light);
+  --interactive-secondary: var(--luxury-bronze);
+  --interactive-secondary-hover: #e6944a;
+
+  /* Status Colors */
+  --status-success: #2ecc71;
+  --status-warning: var(--luxury-gold);
+  --status-error: #e74c3c;
+  --status-info: var(--luxury-gold-light);
+
+  /* Component Specific */
+  --header-bg: var(--luxury-cream);
+  --sidebar-bg: var(--bg-secondary);
+  --card-bg: var(--luxury-cream);
+  --input-bg: rgba(245, 245, 220, 0.8);
+  --button-primary-bg: var(--luxury-gold);
+  --button-primary-text: var(--luxury-navy);
+
+  /* Luxury Effects */
+  --luxury-gradient: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-bronze) 100%);
+  --luxury-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
+  --luxury-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Luxury Theme - Dark Mode */
+[data-concept-theme="luxury"][data-color-mode="dark"],
+[data-theme="luxury-dark"] {
+  /* Luxury Color Palette */
+  --luxury-gold: #d4af37;
+  --luxury-gold-light: #f4e4a1;
+  --luxury-gold-dark: #b8941f;
+  --luxury-bronze: #cd7f32;
+  --luxury-deep-blue: #1a237e;
+  --luxury-navy: #0d1b2a;
+  --luxury-cream: #f5f5dc;
+
+  /* Brand Colors */
+  --brand-primary: var(--luxury-gold);
+  --brand-secondary: var(--luxury-bronze);
+  --brand-accent: var(--luxury-gold-light);
+
+  /* Background Colors */
+  --bg-primary: var(--luxury-navy);
+  --bg-secondary: #1e2a3a;
+  --bg-tertiary: #2c3e50;
+  --bg-overlay: rgba(26, 35, 126, 0.8);
+
+  /* Text Colors */
+  --text-primary: var(--luxury-cream);
+  --text-secondary: #b8c6db;
+  --text-tertiary: #8b9dc3;
+  --text-inverse: var(--luxury-navy);
+
+  /* Border Colors */
+  --border-primary: var(--luxury-gold);
+  --border-secondary: var(--luxury-bronze);
+  --border-focus: var(--luxury-gold-light);
+
+  /* Interactive Colors */
+  --interactive-primary: var(--luxury-gold);
+  --interactive-primary-hover: var(--luxury-gold-light);
+  --interactive-secondary: var(--luxury-bronze);
+  --interactive-secondary-hover: #e6944a;
+
+  /* Status Colors */
+  --status-success: #2ecc71;
+  --status-warning: var(--luxury-gold);
+  --status-error: #e74c3c;
+  --status-info: var(--luxury-gold-light);
+
+  /* Component Specific */
+  --header-bg: var(--luxury-navy);
+  --sidebar-bg: var(--bg-secondary);
+  --card-bg: var(--bg-tertiary);
+  --input-bg: rgba(245, 245, 220, 0.1);
+  --button-primary-bg: var(--luxury-gold);
+  --button-primary-text: var(--luxury-navy);
+
+  /* Luxury Effects */
+  --luxury-gradient: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-bronze) 100%);
+  --luxury-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+  --luxury-text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,215 @@
+/* Button Component Styles */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  border: 1px solid transparent;
+  
+  /* Focus styles */
+  &:focus {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  /* Disabled state */
+  &:disabled,
+  &.btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Button Sizes */
+.btn--xs {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  min-height: 24px;
+}
+
+.btn--sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+}
+
+.btn--md {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-base);
+  min-height: 40px;
+}
+
+.btn--lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-lg);
+  min-height: 48px;
+}
+
+.btn--xl {
+  padding: var(--space-5) var(--space-8);
+  font-size: var(--font-size-xl);
+  min-height: 56px;
+}
+
+/* Button Variants */
+.btn--primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border-color: var(--button-primary-bg);
+
+  &:hover:not(:disabled) {
+    background-color: var(--interactive-primary-hover);
+    border-color: var(--interactive-primary-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+.btn--secondary {
+  background-color: var(--interactive-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+
+  &:hover:not(:disabled) {
+    background-color: var(--interactive-secondary-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+
+  &:hover:not(:disabled) {
+    background-color: var(--interactive-primary);
+    color: var(--text-inverse);
+  }
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--interactive-primary);
+  border-color: transparent;
+
+  &:hover:not(:disabled) {
+    background-color: var(--interactive-secondary);
+  }
+}
+
+.btn--text {
+  background-color: transparent;
+  color: var(--interactive-primary);
+  border-color: transparent;
+  padding: var(--space-1) var(--space-2);
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+}
+
+/* Status Variants */
+.btn--success {
+  background-color: var(--status-success);
+  color: var(--text-inverse);
+  border-color: var(--status-success);
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+.btn--warning {
+  background-color: var(--status-warning);
+  color: var(--text-inverse);
+  border-color: var(--status-warning);
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+.btn--error {
+  background-color: var(--status-error);
+  color: var(--text-inverse);
+  border-color: var(--status-error);
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+/* Button Shapes */
+.btn--rounded {
+  border-radius: var(--radius-full);
+}
+
+.btn--square {
+  border-radius: 0;
+}
+
+/* Full Width */
+.btn--full {
+  width: 100%;
+}
+
+/* Loading State */
+.btn--loading {
+  position: relative;
+  color: transparent;
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btn-spin 1s linear infinite;
+  }
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Icon Buttons */
+.btn--icon-only {
+  padding: var(--space-2);
+  width: 40px;
+  height: 40px;
+
+  &.btn--sm {
+    width: 32px;
+    height: 32px;
+    padding: var(--space-1);
+  }
+
+  &.btn--lg {
+    width: 48px;
+    height: 48px;
+    padding: var(--space-3);
+  }
+}

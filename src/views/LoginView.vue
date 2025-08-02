@@ -87,6 +87,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { authAPI } from "@/services/api";
 import SessionConflictModal from "../components/ui/SessionConflictModal.vue";
 
 const router = useRouter();
@@ -125,6 +126,7 @@ const pendingUser = ref<{
 	email: string;
 	password: string;
 	role: string;
+	label?: string;
 } | null>(null);
 const sessionConflictSessions = ref<any[]>([]);
 
@@ -135,7 +137,7 @@ const handleLogin = async (event: Event) => {
 
 	try {
 		await authStore.login({
-			email: email.value,
+			username: email.value,
 			password: password.value,
 			device_type: "web",
 		});
@@ -179,7 +181,7 @@ const dummyLogin = async (user: {
 
 	try {
 		await authStore.login({
-			email: user.email,
+			username: user.email,
 			password: user.password,
 			device_type: "web",
 		});
@@ -206,35 +208,22 @@ const handleForceLogout = async () => {
 
 	try {
 		// 강제 로그아웃 API 호출
-		const response = await fetch(
-			"http://localhost:8000/api/auth/force-logout/",
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					device_type: "web",
-					email: pendingUser.value.email,
-				}),
-			}
-		);
-
-		if (!response.ok) {
-			const error = await response.json();
-			alert("강제 로그아웃 실패: " + (error.error || "알 수 없는 오류"));
-			showSessionConflict.value = false;
-			pendingUser.value = null;
-			return;
-		}
+		await authAPI.forceLogout({
+			device_type: "web",
+			username: pendingUser.value.email,
+		});
 
 		// 강제 로그아웃 성공 후 재로그인
 		showSessionConflict.value = false;
 		await dummyLogin(pendingUser.value);
 		pendingUser.value = null;
-	} catch (error) {
+	} catch (error: any) {
 		console.error("Force logout error:", error);
-		alert("강제 로그아웃 중 오류가 발생했습니다.");
+		const errorMessage =
+			error.response?.data?.error || "강제 로그아웃 중 오류가 발생했습니다.";
+		alert("강제 로그아웃 실패: " + errorMessage);
+		showSessionConflict.value = false;
+		pendingUser.value = null;
 	}
 };
 
@@ -440,11 +429,7 @@ onMounted(async () => {
 }
 
 .login-page-bg {
-	min-height: 100vh;
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: linear-gradient(135deg, #2cc734 0%, #047602 100%);
 	padding: 20px;
 }
 </style>

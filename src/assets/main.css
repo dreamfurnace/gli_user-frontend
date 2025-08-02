@@ -1,35 +1,65 @@
-@import './base.css';
+/* Import the new design system */
+@import '../styles/index.css';
 
+/* Legacy styles - keep for backward compatibility but use new design tokens */
 #app {
-  /* max-width: 1280px; */
   margin: 0 auto;
   width: 100%;
-  /* padding: 2rem; */
-  font-weight: normal;
+  font-weight: var(--font-weight-normal);
+  min-height: 100vh;
 }
 
+/* Update legacy green links to use design tokens */
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  color: var(--interactive-primary);
+  transition: var(--transition-base);
+  padding: var(--space-1);
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: var(--interactive-secondary);
+    border-radius: var(--radius-sm);
   }
 }
 
+/* Remove old layout styles - let components handle their own layout */
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
+    /* Remove fixed flex layout */
   }
 
   #app {
-    display: grid;
-    /* grid-template-columns: 1fr 1fr; */
+    /* Remove fixed grid layout */
   }
+}
+
+/* Smooth theme transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: var(--transition-duration, var(--transition-base));
+  transition-timing-function: ease-in-out;
+}
+
+/* Focus management for accessibility */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Theme-specific overrides */
+[data-theme="luxury"] {
+  /* Luxury theme specific styles */
+  text-shadow: var(--luxury-text-shadow, none);
+}
+
+[data-theme="luxury"] .card {
+  box-shadow: var(--luxury-shadow, var(--shadow-md));
+}
+
+[data-theme="luxury"] .btn--primary {
+  background: var(--luxury-gradient, var(--button-primary-bg));
 }

@@ -1,0 +1,81 @@
+/* Main Stylesheet - Import Order Matters */
+
+/* 1. Design Tokens (Base Variables) */
+@import './tokens/design-tokens.css';
+
+/* 2. Reset & Base Styles */
+@import './base/reset.css';
+@import './base/typography.css';
+
+/* 3. Themes */
+@import './themes/default.css';
+@import './themes/luxury.css';
+@import './themes/minimal.css';
+
+/* 4. Layout */
+@import './layout/grid.css';
+@import './layout/flex.css';
+
+/* 5. Components Base */
+@import './components/button.css';
+@import './components/input.css';
+@import './components/card.css';
+
+/* 6. Utilities */
+@import './utilities/spacing.css';
+@import './utilities/visibility.css';
+
+/* Global Application Styles */
+html {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+body {
+  font-family: var(--font-family-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Default theme application */
+:root {
+  color-scheme: light;
+}
+
+/* Concept theme + color mode combinations */
+[data-concept-theme="default"][data-color-mode="light"],
+[data-theme="default-light"] {
+  color-scheme: light;
+}
+
+[data-concept-theme="default"][data-color-mode="dark"],
+[data-theme="default-dark"] {
+  color-scheme: dark;
+}
+
+[data-concept-theme="luxury"][data-color-mode="light"],
+[data-theme="luxury-light"] {
+  color-scheme: light;
+}
+
+[data-concept-theme="luxury"][data-color-mode="dark"],
+[data-theme="luxury-dark"] {
+  color-scheme: dark;
+}
+
+[data-concept-theme="minimal"][data-color-mode="light"],
+[data-theme="minimal-light"] {
+  color-scheme: light;
+}
+
+[data-concept-theme="minimal"][data-color-mode="dark"],
+[data-theme="minimal-dark"] {
+  color-scheme: dark;
+}
